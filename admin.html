@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administración - L'ada Natural</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .admin-login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #E8E3D8 0%, #D4CFC4 100%);
+        }
+
+        .login-box {
+            background-color: white;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .login-box h2 {
+            font-family: var(--font-principal);
+            color: var(--color-primario);
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2rem;
+        }
+
+        .login-box .tagline {
+            text-align: center;
+            color: var(--color-texto-claro);
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            font-style: italic;
+        }
+
+        .admin-form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .admin-form-group label {
+            display: block;
+            color: var(--color-texto);
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .admin-form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .admin-form-group input:focus {
+            outline: none;
+            border-color: var(--color-primario);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--color-primario);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .login-btn:hover {
+            background-color: #5a7741;
+        }
+
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .admin-panel {
+            display: none;
+            padding: 2rem 0;
+        }
+
+        .admin-header {
+            background-color: var(--color-primario);
+            color: white;
+            padding: 1.5rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .admin-header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-header h1 {
+            font-family: var(--font-principal);
+            font-size: 1.8rem;
+        }
+
+        .logout-btn {
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .logout-btn:hover {
+            background-color: rgba(255,255,255,0.3);
+        }
+
+        .iframe-container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+            height: calc(100vh - 200px);
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .back-to-site {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .back-to-site a {
+            color: var(--color-primario);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .back-to-site a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="admin-login-container">
+        <div class="login-box">
+            <h2>Administración</h2>
+            <p class="tagline">L'ada Natural - Panel de Gestión</p>
+            
+            <div id="errorMessage" class="error-message"></div>
+            
+            <form id="loginForm">
+                <div class="admin-form-group">
+                    <label for="username">Usuario</label>
+                    <input type="text" id="username" name="username" required autocomplete="username">
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" name="password" required autocomplete="current-password">
+                </div>
+
+                <button type="submit" class="login-btn">Iniciar Sesión</button>
+            </form>
+
+            <div class="back-to-site">
+                <a href="index.html">← Volver al sitio</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="adminPanel" class="admin-panel">
+        <div class="admin-header">
+            <div class="container">
+                <h1>🌿 Laboratorio Natural - Panel de Gestión</h1>
+                <button id="logoutBtn" class="logout-btn">Cerrar Sesión</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="back-to-site">
+                <a href="index.html" target="_blank">🌐 Ver sitio público</a>
+            </div>
+            
+            <div class="iframe-container">
+                <!-- Aquí se cargará tu HTML de Laboratorio Natural -->
+                <iframe id="laboratorioFrame" src="laboratorio-natural.html"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sistema de login simple
+        // IMPORTANTE: Este es un ejemplo básico. En producción deberías usar autenticación real con backend
+        
+        const loginForm = document.getElementById('loginForm');
+        const loginScreen = document.getElementById('loginScreen');
+        const adminPanel = document.getElementById('adminPanel');
+        const errorMessage = document.getElementById('errorMessage');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        // Credenciales de ejemplo (EN PRODUCCIÓN ESTO DEBE ESTAR EN EL SERVIDOR)
+        const ADMIN_USERNAME = 'admin';
+        const ADMIN_PASSWORD = 'ladanatural2024';
+
+        // Verificar si ya hay sesión activa
+        if (localStorage.getItem('adminLoggedIn') === 'true') {
+            showAdminPanel();
+        }
+
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+                localStorage.setItem('adminLoggedIn', 'true');
+                showAdminPanel();
+            } else {
+                showError('Usuario o contraseña incorrectos');
+            }
+        });
+
+        logoutBtn.addEventListener('click', function() {
+            localStorage.removeItem('adminLoggedIn');
+            hideAdminPanel();
+        });
+
+        function showAdminPanel() {
+            loginScreen.style.display = 'none';
+            adminPanel.style.display = 'block';
+        }
+
+        function hideAdminPanel() {
+            loginScreen.style.display = 'flex';
+            adminPanel.style.display = 'none';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            setTimeout(() => {
+                errorMessage.style.display = 'none';
+            }, 3000);
+        }
+
+        // Protección contra iframe clickjacking
+        if (window.self !== window.top) {
+            window.top.location = window.self.location;
+        }
+    </script>
+</body>
+</html>

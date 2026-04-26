@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacto - L'ada Natural</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navegación -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <h1>L'ada Natural</h1>
+                <p class="tagline">La que vuelve a tu esencia</p>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="productos.html">Productos</a></li>
+                <li><a href="nosotros.html">Nosotros</a></li>
+                <li><a href="contacto.html" class="active">Contacto</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1>Contacto</h1>
+            <p>Estamos aquí para ayudarte</p>
+        </div>
+    </section>
+
+    <!-- Formulario de Contacto -->
+    <section class="contacto-section">
+        <div class="container">
+            <div class="contacto-grid">
+                <!-- Formulario -->
+                <div class="contacto-form-container">
+                    <h2>Envianos tu consulta</h2>
+                    <p>Completa el formulario y te responderemos a la brevedad</p>
+                    
+                    <form id="contactForm" class="contact-form">
+                        <div class="form-group">
+                            <label for="nombre">Nombre *</label>
+                            <input type="text" id="nombre" name="nombre" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email *</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="telefono">Teléfono</label>
+                            <input type="tel" id="telefono" name="telefono">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="asunto">Asunto *</label>
+                            <select id="asunto" name="asunto" required>
+                                <option value="">Selecciona un asunto</option>
+                                <option value="consulta-productos">Consulta sobre productos</option>
+                                <option value="pedido">Realizar un pedido</option>
+                                <option value="mayorista">Consulta mayorista</option>
+                                <option value="colaboracion">Colaboración</option>
+                                <option value="otro">Otro</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="mensaje">Mensaje *</label>
+                            <textarea id="mensaje" name="mensaje" rows="5" required></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-primary">Enviar mensaje</button>
+                    </form>
+
+                    <div id="formMessage" class="form-message"></div>
+                </div>
+
+                <!-- Información de Contacto -->
+                <div class="contacto-info">
+                    <h2>Información de contacto</h2>
+                    
+                    <div class="info-item">
+                        <div class="info-icon">📧</div>
+                        <div>
+                            <h3>Email</h3>
+                            <p>info@ladanatural.com</p>
+                            <p>ventas@ladanatural.com</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon">📱</div>
+                        <div>
+                            <h3>Redes Sociales</h3>
+                            <p>Instagram: @ladanatural</p>
+                            <p>Facebook: L'ada Natural</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon">⏰</div>
+                        <div>
+                            <h3>Horarios de atención</h3>
+                            <p>Lunes a Viernes: 9:00 - 18:00</p>
+                            <p>Sábados: 9:00 - 13:00</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon">📍</div>
+                        <div>
+                            <h3>Ubicación</h3>
+                            <p>Buenos Aires, Argentina</p>
+                        </div>
+                    </div>
+
+                    <div class="info-destacada">
+                        <h3>🌿 ¿Consultas sobre productos?</h3>
+                        <p>Estamos para ayudarte a encontrar el producto perfecto para tus necesidades. No dudes en consultarnos.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Rápido -->
+    <section class="faq-rapido">
+        <div class="container">
+            <h2 class="section-title">Preguntas Frecuentes</h2>
+            
+            <div class="faq-grid">
+                <div class="faq-item">
+                    <h3>¿Hacen envíos?</h3>
+                    <p>Sí, realizamos envíos a todo el país. Consultanos por los costos según tu ubicación.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>¿Los productos son veganos?</h3>
+                    <p>Sí, todos nuestros productos son 100% veganos y libres de crueldad animal.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>¿Cuál es el tiempo de entrega?</h3>
+                    <p>Dentro de CABA: 24-48hs. Interior del país: 3-7 días hábiles según la zona.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>¿Venden al por mayor?</h3>
+                    <p>Sí, tenemos precios especiales para revendedores. Contactanos para más información.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>L'ada Natural</h3>
+                    <p>La que vuelve a tu esencia</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Navegación</h4>
+                    <ul>
+                        <li><a href="index.html">Inicio</a></li>
+                        <li><a href="productos.html">Productos</a></li>
+                        <li><a href="nosotros.html">Nosotros</a></li>
+                        <li><a href="contacto.html">Contacto</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contacto</h4>
+                    <p>Email: info@ladanatural.com</p>
+                    <p>Instagram: @ladanatural</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 L'ada Natural. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

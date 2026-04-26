@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productos - L'ada Natural</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navegación -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <h1>L'ada Natural</h1>
+                <p class="tagline">La que vuelve a tu esencia</p>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="productos.html" class="active">Productos</a></li>
+                <li><a href="nosotros.html">Nosotros</a></li>
+                <li><a href="contacto.html">Contacto</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header de Productos -->
+    <section class="page-header">
+        <div class="container">
+            <h1>Nuestros Productos</h1>
+            <p>Cosmética natural elaborada con amor y consciencia</p>
+        </div>
+    </section>
+
+    <!-- Catálogo de Productos -->
+    <section class="catalogo">
+        <div class="container">
+            <div class="productos-grid-full">
+                
+                <!-- Producto 1: Shampoo Sólido -->
+                <div class="producto-card-full">
+                    <div class="producto-img-full">
+                        <div class="placeholder-img-full">Shampoo Sólido</div>
+                    </div>
+                    <div class="producto-info">
+                        <h3>Shampoo Sólido</h3>
+                        <p class="producto-descripcion">Limpieza profunda y natural para todo tipo de cabello. Formulado con aceites esenciales y extractos botánicos que nutren desde la raíz. Libre de sulfatos, parabenos y siliconas.</p>
+                        <ul class="producto-beneficios">
+                            <li>✓ Rendimiento de 2-3 meses</li>
+                            <li>✓ Zero waste - sin plástico</li>
+                            <li>✓ Apto para uso diario</li>
+                        </ul>
+                        <button class="btn-secondary" onclick="mostrarConsulta('Shampoo Sólido')">Consultar</button>
+                    </div>
+                </div>
+
+                <!-- Producto 2: Serum Facial Regenerador -->
+                <div class="producto-card-full">
+                    <div class="producto-img-full">
+                        <div class="placeholder-img-full">Serum Facial Regenerador</div>
+                    </div>
+                    <div class="producto-info">
+                        <h3>Serum Facial Regenerador</h3>
+                        <p class="producto-descripcion">Tratamiento intensivo con aceites vegetales prensados en frío. Rico en antioxidantes y vitaminas que revitalizan la piel. Ideal para pieles maduras o con signos de fatiga.</p>
+                        <ul class="producto-beneficios">
+                            <li>✓ Acción antienvejecimiento</li>
+                            <li>✓ Absorción rápida</li>
+                            <li>✓ Uso día y noche</li>
+                        </ul>
+                        <button class="btn-secondary" onclick="mostrarConsulta('Serum Facial Regenerador')">Consultar</button>
+                    </div>
+                </div>
+
+                <!-- Producto 3: Serum Facial Hidratante -->
+                <div class="producto-card-full">
+                    <div class="producto-img-full">
+                        <div class="placeholder-img-full">Serum Facial Hidratante</div>
+                    </div>
+                    <div class="producto-info">
+                        <h3>Serum Facial Hidratante</h3>
+                        <p class="producto-descripcion">Hidratación profunda con ácido hialurónico vegetal y aloe vera. Perfecto para pieles normales a secas que buscan luminosidad y suavidad.</p>
+                        <ul class="producto-beneficios">
+                            <li>✓ Hidratación de larga duración</li>
+                            <li>✓ Calma y suaviza</li>
+                            <li>✓ No comedogénico</li>
+                        </ul>
+                        <button class="btn-secondary" onclick="mostrarConsulta('Serum Facial Hidratante')">Consultar</button>
+                    </div>
+                </div>
+
+                <!-- Producto 4: Repelente de Mosquitos -->
+                <div class="producto-card-full">
+                    <div class="producto-img-full">
+                        <div class="placeholder-img-full">Repelente Natural</div>
+                    </div>
+                    <div class="producto-info">
+                        <h3>Repelente de Mosquitos Natural</h3>
+                        <p class="producto-descripcion">Protección efectiva sin químicos agresivos. Formulado con aceites esenciales de citronela, eucalipto y lavanda. Seguro para toda la familia.</p>
+                        <ul class="producto-beneficios">
+                            <li>✓ Libre de DEET</li>
+                            <li>✓ Apto para niños +2 años</li>
+                            <li>✓ Aroma agradable</li>
+                        </ul>
+                        <button class="btn-secondary" onclick="mostrarConsulta('Repelente de Mosquitos')">Consultar</button>
+                    </div>
+                </div>
+
+                <!-- Producto 5: Bruma Facial -->
+                <div class="producto-card-full">
+                    <div class="producto-img-full">
+                        <div class="placeholder-img-full">Bruma Facial</div>
+                    </div>
+                    <div class="producto-info">
+                        <h3>Bruma Facial Refrescante</h3>
+                        <p class="producto-descripcion">Hidratación instantánea en spray. Con agua de rosas y extractos botánicos que tonifican y refrescan la piel en cualquier momento del día.</p>
+                        <ul class="producto-beneficios">
+                            <li>✓ Fija el maquillaje</li>
+                            <li>✓ Portátil y práctica</li>
+                            <li>✓ Todos los tipos de piel</li>
+                        </ul>
+                        <button class="btn-secondary" onclick="mostrarConsulta('Bruma Facial')">Consultar</button>
+                    </div>
+                </div>
+
+                <!-- Producto 6: Aceite de Rosa Mosqueta -->
+                <div class="producto-card-full">
+                    <div class="producto-img-full">
+                        <div class="placeholder-img-full">Aceite de Rosa Mosqueta</div>
+                    </div>
+                    <div class="producto-info">
+                        <h3>Aceite de Rosa Mosqueta Puro</h3>
+                        <p class="producto-descripcion">100% puro y prensado en frío. Rico en ácidos grasos esenciales y vitamina A. Ideal para cicatrices, estrías y regeneración cutánea.</p>
+                        <ul class="producto-beneficios">
+                            <li>✓ Regenera y repara</li>
+                            <li>✓ Atenúa manchas</li>
+                            <li>✓ Certificado orgánico</li>
+                        </ul>
+                        <button class="btn-secondary" onclick="mostrarConsulta('Aceite de Rosa Mosqueta')">Consultar</button>
+                    </div>
+                </div>
+
+                <!-- Producto 7: Aceite de Jojoba -->
+                <div class="producto-card-full">
+                    <div class="producto-img-full">
+                        <div class="placeholder-img-full">Aceite de Jojoba</div>
+                    </div>
+                    <div class="producto-info">
+                        <h3>Aceite de Jojoba Orgánico</h3>
+                        <p class="producto-descripcion">Aceite vegetal multiusos, similar al sebo natural de la piel. Regula la producción de grasa y aporta hidratación equilibrada.</p>
+                        <ul class="producto-beneficios">
+                            <li>✓ Para cabello y piel</li>
+                            <li>✓ No obstruye poros</li>
+                            <li>✓ Textura ligera</li>
+                        </ul>
+                        <button class="btn-secondary" onclick="mostrarConsulta('Aceite de Jojoba')">Consultar</button>
+                    </div>
+                </div>
+
+                <!-- Producto 8: Aceite de Coco -->
+                <div class="producto-card-full">
+                    <div class="producto-img-full">
+                        <div class="placeholder-img-full">Aceite de Coco</div>
+                    </div>
+                    <div class="producto-info">
+                        <h3>Aceite de Coco Virgen Extra</h3>
+                        <p class="producto-descripcion">Extraído por prensado en frío. Nutrición profunda para piel y cabello. Propiedades antimicrobianas y reparadoras.</p>
+                        <ul class="producto-beneficios">
+                            <li>✓ Hidratación intensa</li>
+                            <li>✓ Cabello sedoso</li>
+                            <li>✓ Aroma tropical natural</li>
+                        </ul>
+                        <button class="btn-secondary" onclick="mostrarConsulta('Aceite de Coco')">Consultar</button>
+                    </div>
+                </div>
+
+                <!-- Producto 9: Aceite de Almendras -->
+                <div class="producto-card-full">
+                    <div class="producto-img-full">
+                        <div class="placeholder-img-full">Aceite de Almendras</div>
+                    </div>
+                    <div class="producto-info">
+                        <h3>Aceite de Almendras Dulces</h3>
+                        <p class="producto-descripcion">Suave y nutritivo, ideal para pieles sensibles y bebés. Rico en vitamina E y ácidos grasos. Calma irritaciones y suaviza.</p>
+                        <ul class="producto-beneficios">
+                            <li>✓ Hipoalergénico</li>
+                            <li>✓ Para toda la familia</li>
+                            <li>✓ Antiinflamatorio</li>
+                        </ul>
+                        <button class="btn-secondary" onclick="mostrarConsulta('Aceite de Almendras')">Consultar</button>
+                    </div>
+                </div>
+
+                <!-- Producto 10: Aceite de Argán -->
+                <div class="producto-card-full">
+                    <div class="producto-img-full">
+                        <div class="placeholder-img-full">Aceite de Argán</div>
+                    </div>
+                    <div class="producto-info">
+                        <h3>Aceite de Argán Marroquí</h3>
+                        <p class="producto-descripcion">El oro líquido de Marruecos. Altamente nutritivo y restaurador. Perfecto para cabello dañado y piel madura.</p>
+                        <ul class="producto-beneficios">
+                            <li>✓ Anti-frizz natural</li>
+                            <li>✓ Brillo y suavidad</li>
+                            <li>✓ Producción ética</li>
+                        </ul>
+                        <button class="btn-secondary" onclick="mostrarConsulta('Aceite de Argán')">Consultar</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal de Consulta -->
+    <div id="modalConsulta" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Consultar sobre <span id="productoNombre"></span></h2>
+            <p>¡Nos encantaría ayudarte! Completa el formulario y te responderemos a la brevedad.</p>
+            <a href="contacto.html" class="btn-primary">Ir a Contacto</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>L'ada Natural</h3>
+                    <p>La que vuelve a tu esencia</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Navegación</h4>
+                    <ul>
+                        <li><a href="index.html">Inicio</a></li>
+                        <li><a href="productos.html">Productos</a></li>
+                        <li><a href="nosotros.html">Nosotros</a></li>
+                        <li><a href="contacto.html">Contacto</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contacto</h4>
+                    <p>Email: info@ladanatural.com</p>
+                    <p>Instagram: @ladanatural</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 L'ada Natural. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,2712 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laboratorio Natural — Gestión de Recetas</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green-deep: #2d5a3d;
+  --green-mid: #3d6b4f;
+  --green-light: #6a9e78;
+  --green-pale: #e8f2eb;
+  --green-xpale: #f3f8f4;
+  --gold: #b5873a;
+  --gold-pale: #faf3e6;
+  --cream: #faf8f4;
+  --text: #1e2e22;
+  --text-mid: #4a5e50;
+  --text-light: #8aa090;
+  --border: #d4e0d7;
+  --white: #ffffff;
+  --red: #b03030;
+  --red-pale: #fdf0f0;
+  --amber: #c07820;
+  --amber-pale: #fef8ec;
+  --radius: 10px;
+  --radius-lg: 16px;
+  --shadow: 0 2px 12px rgba(45,90,61,0.08);
+  --shadow-md: 0 4px 24px rgba(45,90,61,0.12);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ── LAYOUT ── */
+.app-shell { display: flex; height: 100vh; overflow: hidden; }
+
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--green-deep);
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+.sidebar-logo {
+  padding: 28px 24px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.sidebar-logo h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 500;
+  color: #fff;
+  line-height: 1.2;
+}
+.sidebar-logo span {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  display: block;
+  margin-top: 2px;
+}
+
+.sidebar-nav { flex: 1; padding: 16px 12px; display: flex; flex-direction: column; gap: 4px; }
+
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: rgba(255,255,255,0.65);
+  font-size: 13px;
+  font-weight: 400;
+  transition: all 0.15s;
+  border: none; background: none; width: 100%; text-align: left;
+}
+.nav-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+.nav-item.active { background: rgba(255,255,255,0.15); color: #fff; font-weight: 500; }
+.nav-icon { width: 16px; height: 16px; opacity: 0.8; flex-shrink: 0; }
+
+.sidebar-footer {
+  padding: 16px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+  text-align: center;
+}
+
+.main {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.topbar-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 500; color: var(--green-deep); }
+.topbar-right { display: flex; gap: 8px; align-items: center; }
+
+.content { padding: 24px 28px; flex: 1; }
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--white);
+  color: var(--text);
+  transition: all 0.15s;
+}
+.btn:hover { background: var(--green-xpale); border-color: var(--green-light); }
+.btn-primary { background: var(--green-mid); color: #fff; border-color: var(--green-mid); }
+.btn-primary:hover { background: var(--green-deep); border-color: var(--green-deep); }
+.btn-sm { padding: 5px 11px; font-size: 12px; }
+.btn-ghost { border-color: transparent; background: transparent; }
+.btn-ghost:hover { background: var(--green-pale); border-color: transparent; }
+.btn-danger { color: var(--red); border-color: #e0c0c0; }
+.btn-danger:hover { background: var(--red-pale); border-color: var(--red); }
+.btn-gold { background: var(--gold); color: #fff; border-color: var(--gold); }
+.btn-gold:hover { background: #9a7030; border-color: #9a7030; }
+
+/* ── INPUTS ── */
+input, select, textarea {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  background: var(--white);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  width: 100%;
+  transition: border-color 0.15s;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--green-light);
+  box-shadow: 0 0 0 3px rgba(106,158,120,0.12);
+}
+textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
+label { font-size: 12px; color: var(--text-mid); display: block; margin-bottom: 5px; font-weight: 500; }
+
+/* ── CARDS ── */
+.card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+.card + .card { margin-top: 12px; }
+
+/* ── BADGES ── */
+.badge {
+  display: inline-block;
+  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+.badge-green { background: var(--green-pale); color: var(--green-deep); }
+.badge-amber { background: var(--amber-pale); color: var(--amber); }
+.badge-red { background: var(--red-pale); color: var(--red); }
+.badge-gray { background: #f0f0ec; color: var(--text-mid); }
+.badge-gold { background: var(--gold-pale); color: var(--gold); }
+
+/* ── TABLE ── */
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--green-xpale);
+}
+.data-table td {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  vertical-align: middle;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--green-xpale); }
+.data-table .actions { display: flex; gap: 4px; justify-content: flex-end; }
+
+/* ── MISC ── */
+.flex { display: flex; gap: 8px; align-items: center; }
+.flex-between { display: flex; justify-content: space-between; align-items: center; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.mt8 { margin-top: 8px; }
+.mt12 { margin-top: 12px; }
+.mt16 { margin-top: 16px; }
+.mt20 { margin-top: 20px; }
+.mb12 { margin-bottom: 12px; }
+.divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+.empty-state {
+  text-align: center;
+  padding: 48px 20px;
+  color: var(--text-light);
+}
+.empty-state .empty-icon { font-size: 40px; margin-bottom: 12px; }
+.empty-state p { font-size: 14px; }
+
+.stat-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+.stat-card .stat-num { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 600; color: var(--green-deep); line-height: 1; }
+.stat-card .stat-lbl { font-size: 12px; color: var(--text-light); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
+
+.alert-banner {
+  background: var(--amber-pale);
+  border: 1px solid #f0d090;
+  border-radius: var(--radius);
+  padding: 10px 16px;
+  font-size: 13px;
+  color: var(--amber);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.progress-wrap { background: var(--border); border-radius: 4px; height: 5px; overflow: hidden; margin-top: 6px; }
+.progress-fill { height: 100%; border-radius: 4px; transition: width 0.4s; }
+
+.fase-header {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--green-mid);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  background: var(--green-xpale);
+  padding: 5px 10px;
+  border-radius: 6px;
+  margin: 12px 0 6px;
+}
+.ing-row {
+  display: grid;
+  grid-template-columns: 1fr 90px 70px 70px 30px;
+  gap: 6px;
+  align-items: center;
+  padding: 5px 4px;
+  border-radius: 6px;
+}
+.ing-row:hover { background: var(--green-xpale); }
+.ing-row-header {
+  display: grid;
+  grid-template-columns: 1fr 90px 70px 70px 30px;
+  gap: 6px;
+  padding: 3px 4px;
+  font-size: 11px;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 2px;
+}
+.step-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px; height: 22px;
+  background: var(--green-mid);
+  color: #fff;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 500;
+  flex-shrink: 0;
+  margin-right: 8px;
+}
+
+/* ── MODAL ── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(30,46,34,0.45);
+  z-index: 200;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.modal {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  padding: 28px;
+  width: min(96vw, 640px);
+  max-height: 88vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-md);
+}
+.modal-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--green-deep);
+  margin-bottom: 20px;
+}
+.modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); }
+
+/* ── SEARCH BAR ── */
+.search-wrap { position: relative; }
+.search-wrap input { padding-left: 34px; }
+.search-wrap::before {
+  content: '';
+  position: absolute;
+  left: 11px; top: 50%;
+  transform: translateY(-50%);
+  width: 14px; height: 14px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238aa090' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") no-repeat center;
+  pointer-events: none;
+}
+
+/* ── VIEW TOGGLE ── */
+.view { display: none; }
+.view.active { display: block; }
+
+/* ── RECIPE DETAIL ── */
+.recipe-detail-header {
+  background: linear-gradient(135deg, var(--green-deep) 0%, var(--green-mid) 100%);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: 24px 28px;
+  color: #fff;
+}
+.recipe-detail-header h2 { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 500; }
+.recipe-detail-header .meta { font-size: 12px; opacity: 0.75; margin-top: 6px; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── BACKUP ── */
+.sidebar-backup {
+  padding: 12px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.backup-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 8px;
+  color: rgba(255,255,255,0.75);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: left;
+}
+.backup-btn:hover {
+  background: rgba(255,255,255,0.14);
+  color: #fff;
+  border-color: rgba(255,255,255,0.3);
+}
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(0);
+  background: var(--green-deep);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 13px;
+  z-index: 500;
+  box-shadow: var(--shadow-md);
+  animation: toast-in 0.2s ease, toast-out 0.3s ease 2.2s forwards;
+  pointer-events: none;
+}
+@keyframes toast-in  { from { opacity:0; transform: translateX(-50%) translateY(12px); } to { opacity:1; transform: translateX(-50%) translateY(0); } }
+@keyframes toast-out { from { opacity:1; } to { opacity:0; } }
+
+/* ── SORT ── */
+.sortable { cursor:pointer; user-select:none; white-space:nowrap; }
+.sortable:hover { color: var(--green-mid); }
+.sort-arrow { display:inline-block; margin-left:4px; font-size:10px; opacity:0.5; }
+.sortable.asc .sort-arrow::after  { content:'▲'; }
+.sortable.desc .sort-arrow::after { content:'▼'; }
+.sortable:not(.asc):not(.desc) .sort-arrow::after { content:'⇅'; }
+.badge-venc-ok   { background:#e8f4ec; color:#2e6644; }
+.badge-venc-warn { background:var(--amber-pale); color:var(--amber); }
+.badge-venc-exp  { background:var(--red-pale); color:var(--red); }
+.g-result-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 13px;
+  flex-wrap: wrap;
+}
+.g-result-row:hover { background: var(--green-xpale); }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <h1>Laboratorio<br>Natural</h1>
+      <span>Dr. Ing. V. Silva</span>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="nav-item active" onclick="showView('recetas')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Recetas
+      </button>
+      <button class="nav-item" onclick="showView('stock')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        Stock ingredientes
+      </button>
+      <button class="nav-item" onclick="showView('produccion')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/></svg>
+        Producción
+      </button>
+      <button class="nav-item" onclick="showView('costos')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Costos
+      </button>
+      <button class="nav-item" onclick="showView('ventas')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+        Ventas
+      </button>
+      <button class="nav-item" onclick="showView('dashboard')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Resumen
+      </button>
+    </nav>
+    <div class="sidebar-backup">
+      <div id="autosave-status" style="font-size:11px;color:rgba(255,255,255,0.4);padding:4px 4px 8px;display:flex;align-items:center;gap:6px">
+        <span id="autosave-dot" style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.2);flex-shrink:0;display:inline-block"></span>
+        <span id="autosave-label">Cargando...</span>
+      </div>
+      <button class="backup-btn" id="btn-autoguardar" onclick="guardarEnArchivo()" style="border-color:rgba(106,158,120,0.5);color:rgba(255,255,255,0.9)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Guardar en archivo
+      </button>
+      <button class="backup-btn" onclick="exportarBackup()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exportar backup
+      </button>
+      <button class="backup-btn" onclick="importarBackup()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Importar backup
+      </button>
+      <input type="file" id="import-file-input" accept=".json" style="display:none" onchange="procesarArchivoImport(this)" />
+    </div>
+    <div class="sidebar-footer">v1.8 · datos locales</div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- ── BARRA GLOBAL ── -->
+    <div id="global-search-bar" style="background:var(--white);border-bottom:1px solid var(--border);padding:10px 28px;display:flex;align-items:center;gap:10px">
+      <div class="search-wrap" style="flex:1;max-width:480px">
+        <input id="global-search-input" placeholder="Buscar en todo: recetas, ingredientes, lotes..." autocomplete="off" />
+      </div>
+      <span style="font-size:12px;color:var(--text-light)" id="global-search-hint">Buscá por nombre, categoría, ingrediente o lote</span>
+    </div>
+    <div id="global-search-results" style="display:none;background:var(--white);border-bottom:1px solid var(--border);padding:0 28px 12px;max-height:320px;overflow-y:auto"></div>
+
+    <!-- ── RECETAS ── -->
+    <div id="view-recetas" class="view active">
+      <div class="topbar">
+        <div class="topbar-title">Recetas</div>
+        <div class="topbar-right">
+          <div class="search-wrap" style="width:220px">
+            <input id="search-recetas" placeholder="Buscar..." oninput="filterRecetas()" />
+          </div>
+          <select id="filtro-cat" onchange="filterRecetas()" style="width:140px">
+            <option value="">Todas las categorías</option>
+          </select>
+          <button class="btn" onclick="importarRecetas()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+            Importar recetas
+          </button>
+          <input type="file" id="import-recetas-input" accept=".json" style="display:none" onchange="procesarImportRecetas(this)" />
+          <button class="btn btn-gold" onclick="seleccionarYPreparar()" title="Preparar una receta y descontar stock">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>
+            Preparar fórmula
+          </button>
+          <button class="btn btn-primary" onclick="openFormReceta(null)">+ Nueva receta</button>
+        </div>
+      </div>
+      <div class="content">
+        <div id="recetas-table-wrap"></div>
+      </div>
+    </div>
+
+    <!-- ── STOCK ── -->
+    <div id="view-stock" class="view">
+      <div class="topbar">
+        <div class="topbar-title">Stock de ingredientes</div>
+        <div class="topbar-right">
+          <div class="search-wrap" style="width:180px">
+            <input id="stock-search" placeholder="Buscar..." oninput="renderStock()" />
+          </div>
+          <select id="stock-cat-filter" onchange="renderStock()" style="width:150px">
+            <option value="">Todas las categorías</option>
+          </select>
+          <button class="btn" onclick="importarDesdeFactura()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+            Importar factura
+          </button>
+          <button class="btn btn-primary" onclick="openFormIngrediente(null)">+ Ingrediente</button>
+        </div>
+      </div>
+      <div class="content">
+        <div id="stock-content"></div>
+      </div>
+    </div>
+
+    <!-- ── COSTOS ── -->
+    <div id="view-costos" class="view">
+      <div class="topbar">
+        <div class="topbar-title">Estructura de costos</div>
+        <div class="topbar-right">
+          <select id="costos-receta-sel" onchange="renderCostos()" style="width:260px">
+            <option value="">Seleccioná una receta...</option>
+          </select>
+        </div>
+      </div>
+      <div class="content">
+        <div id="costos-content"><div class="empty-state"><div class="empty-icon">$</div><p>Seleccioná una receta para ver su estructura de costos.</p></div></div>
+      </div>
+    </div>
+
+    <!-- ── PRODUCCIÓN ── -->
+    <div id="view-produccion" class="view">
+      <div class="topbar">
+        <div class="topbar-title">Stock de producción</div>
+        <div class="topbar-right">
+          <div class="search-wrap" style="width:180px">
+            <input id="prod-search" placeholder="Buscar..." oninput="renderProduccion()" />
+          </div>
+          <select id="prod-filter-receta" onchange="renderProduccion()" style="width:200px">
+            <option value="">Todas las fórmulas</option>
+          </select>
+          <select id="prod-filter-estado" onchange="renderProduccion()" style="width:140px">
+            <option value="">Todos los estados</option>
+            <option value="disponible">Disponible</option>
+            <option value="reservado">Reservado</option>
+            <option value="agotado">Agotado</option>
+          </select>
+          <button class="btn btn-primary" onclick="openFormLote(null)">+ Nuevo lote</button>
+        </div>
+      </div>
+      <div class="content">
+        <div id="prod-content"></div>
+      </div>
+    </div>
+
+    <!-- ── VENTAS ── -->
+    <div id="view-ventas" class="view">
+      <div class="topbar">
+        <div class="topbar-title">Ventas</div>
+        <div class="topbar-right">
+          <div class="search-wrap" style="width:180px">
+            <input id="ventas-search" placeholder="Buscar..." oninput="renderVentas()" />
+          </div>
+          <select id="ventas-filter-receta" onchange="renderVentas()" style="width:200px">
+            <option value="">Todas las fórmulas</option>
+          </select>
+          <button class="btn btn-primary" onclick="openFormVenta(null)">+ Registrar venta</button>
+        </div>
+      </div>
+      <div class="content">
+        <div id="ventas-content"></div>
+      </div>
+    </div>
+
+    <!-- ── DASHBOARD ── -->
+    <div id="view-dashboard" class="view">
+      <div class="topbar">
+        <div class="topbar-title">Resumen</div>
+      </div>
+      <div class="content">
+        <div id="dashboard-content"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODAL CONTAINER -->
+<div id="modal-root"></div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────
+const CATEGORIAS = ['Facial','Corporal','Capilar','Solar','Repelente','Desodorante','Otro'];
+const UNIDADES   = ['g','ml','gotas','cucharada','taza','unidad'];
+const CATS_ING   = ['Aceite vegetal','Aceite esencial','Manteca','Cera','Tensioactivo','Filtro solar','Activo','Humectante','Conservante','Ingrediente base','Otro'];
+
+const DEFAULT_DATA = {
+  recetas: [
+    {
+      id: 1, nombre: 'Protector Solar FPS 50', categoria: 'Solar',
+      rendimiento: '500', unidad_rendimiento: 'g',
+      notas: 'Confirmar FPS con laboratorio antes de uso masivo. Realizar prueba de parche.',
+      fases: [
+        { nombre: 'Fase Oleosa', ingredientes: [
+          {nombre:'Aceite de zanahoria macerado',cantidad:'79.4',porcentaje:'20',unidad:'g'},
+          {nombre:'Aceite de palma virgen',cantidad:'79.4',porcentaje:'20',unidad:'g'},
+          {nombre:'Aceite de jojoba',cantidad:'39.7',porcentaje:'10',unidad:'g'},
+          {nombre:'Manteca de karité',cantidad:'31.7',porcentaje:'8',unidad:'g'},
+          {nombre:'Aceite de aguacate',cantidad:'27.8',porcentaje:'7',unidad:'g'},
+          {nombre:'Alcohol cetoestearílico',cantidad:'7.9',porcentaje:'2',unidad:'g'},
+          {nombre:'Cera emulsionante (BTMS)',cantidad:'19.9',porcentaje:'5',unidad:'g'},
+        ]},
+        { nombre: 'Filtros Físicos', ingredientes: [
+          {nombre:'Óxido de zinc (no nano)',cantidad:'79.4',porcentaje:'20',unidad:'g'},
+          {nombre:'Dióxido de titanio (no nano)',cantidad:'19.9',porcentaje:'5',unidad:'g'},
+        ]},
+        { nombre: 'Fase Acuosa', ingredientes: [
+          {nombre:'Hidrolato de manzanilla',cantidad:'91.6',porcentaje:'23',unidad:'g'},
+          {nombre:'Glicerina vegetal',cantidad:'12',porcentaje:'3',unidad:'g'},
+          {nombre:'Gel de aloe vera',cantidad:'8',porcentaje:'2',unidad:'g'},
+        ]},
+        { nombre: 'Activos y Conservantes', ingredientes: [
+          {nombre:'Vitamina E',cantidad:'2',porcentaje:'0.5',unidad:'g'},
+          {nombre:'Conservante natural (Leucidal)',cantidad:'a definir',porcentaje:'—',unidad:'g'},
+        ]}
+      ],
+      pasos: [
+        'Mezclar aceites y cera emulsionante a 70°C. Tamizar los filtros solares para evitar grumos.',
+        'Incorporar óxido de zinc y dióxido de titanio en la fase oleosa caliente con batidora de inmersión.',
+        'Calentar la fase acuosa (hidrolato, glicerina, aloe vera) a 70°C por separado.',
+        'Mezclar ambas fases a igual temperatura y emulsionar con batidora durante 3–5 minutos hasta textura cremosa.',
+        'A 40–45°C, agregar vitamina E y conservante. Mezclar bien.',
+        'Medir pH (debe ser 5–7). Ajustar con ácido láctico (bajar) o bicarbonato (subir).',
+        'Dejar reposar 12–24 hs. Envasar en frasco opaco.'
+      ]
+    },
+    {
+      id: 2, nombre: 'Desodorante en Crema Natural', categoria: 'Desodorante',
+      rendimiento: '100', unidad_rendimiento: 'g',
+      notas: 'Alto poder desodorante. No agresivo con la piel. Guardar en lugar fresco.',
+      fases: [
+        { nombre: 'Fase Oleosa', ingredientes: [
+          {nombre:'Aceite de coco',cantidad:'25',porcentaje:'25',unidad:'g'},
+          {nombre:'Manteca de karité',cantidad:'15',porcentaje:'15',unidad:'g'},
+          {nombre:'Cera de abejas',cantidad:'5',porcentaje:'5',unidad:'g'},
+        ]},
+        { nombre: 'Fase en Polvo', ingredientes: [
+          {nombre:'Bicarbonato de sodio',cantidad:'20',porcentaje:'20',unidad:'g'},
+          {nombre:'Almidón de maíz',cantidad:'15',porcentaje:'15',unidad:'g'},
+          {nombre:'Óxido de zinc',cantidad:'2',porcentaje:'2',unidad:'g'},
+          {nombre:'Dióxido de titanio',cantidad:'2',porcentaje:'2',unidad:'g'},
+        ]},
+        { nombre: 'Activos y Aroma', ingredientes: [
+          {nombre:'AE árbol de té',cantidad:'10',porcentaje:'—',unidad:'gotas'},
+          {nombre:'AE lavanda',cantidad:'10',porcentaje:'—',unidad:'gotas'},
+        ]}
+      ],
+      pasos: [
+        'Derretir la fase oleosa a baño maría.',
+        'Mezclar la fase en polvo por separado para distribuir bien los ingredientes secos.',
+        'Retirar del fuego y agregar los polvos poco a poco, mezclando para evitar grumos.',
+        'Cuando la mezcla esté tibia, añadir los aceites esenciales y revolver.',
+        'Verter en frasco de vidrio y dejar enfriar completamente.'
+      ]
+    },
+    {
+      id: 3, nombre: 'Repelente Natural de Mosquitos', categoria: 'Repelente',
+      rendimiento: '100', unidad_rendimiento: 'ml',
+      notas: 'Vida útil: 2–3 semanas fuera de heladera, 1 mes refrigerado. Agitar antes de usar.',
+      fases: [
+        { nombre: 'Aceites Esenciales', ingredientes: [
+          {nombre:'AE citronela',cantidad:'2 ml (40 gotas)',porcentaje:'2',unidad:'ml'},
+          {nombre:'AE lavanda',cantidad:'1 ml (20 gotas)',porcentaje:'1',unidad:'ml'},
+          {nombre:'AE eucalipto o menta',cantidad:'0.5–1 ml',porcentaje:'0.5–1',unidad:'ml'},
+        ]},
+        { nombre: 'Base', ingredientes: [
+          {nombre:'Glicerina vegetal',cantidad:'8',porcentaje:'8',unidad:'ml'},
+          {nombre:'Alcohol etílico 70%',cantidad:'5',porcentaje:'5',unidad:'ml'},
+          {nombre:'Agua destilada',cantidad:'83',porcentaje:'83',unidad:'ml'},
+        ]}
+      ],
+      pasos: [
+        'Mezclar los aceites esenciales con el alcohol al 70% para disolverlos parcialmente.',
+        'En otro recipiente, combinar la glicerina con el agua destilada.',
+        'Verter lentamente la mezcla de AE y alcohol en la solución acuosa, revolviendo continuamente.',
+        'Transferir a envase con atomizador.',
+        'Agitar bien antes de cada uso.'
+      ]
+    },
+    {
+      id: 4, nombre: 'Gel de Limpieza Facial Antiacné', categoria: 'Facial',
+      rendimiento: '100', unidad_rendimiento: 'g',
+      notas: 'Limpia en profundidad sin resecar. Usar mañana y/o noche según necesidad.',
+      fases: [
+        { nombre: 'Fase Acuosa', ingredientes: [
+          {nombre:'Agua destilada o infusión de té verde',cantidad:'38',porcentaje:'38',unidad:'g'},
+          {nombre:'Gel de áloe vera',cantidad:'25',porcentaje:'25',unidad:'g'},
+          {nombre:'Goma xantana',cantidad:'0.5',porcentaje:'0.5',unidad:'g'},
+        ]},
+        { nombre: 'Fase Activa', ingredientes: [
+          {nombre:'Extracto glicólico de hamamelis',cantidad:'7',porcentaje:'7',unidad:'g'},
+          {nombre:'Niacinamida (opcional)',cantidad:'2',porcentaje:'2',unidad:'g'},
+        ]},
+        { nombre: 'Limpieza', ingredientes: [
+          {nombre:'Coco glucósido',cantidad:'5',porcentaje:'5',unidad:'g'},
+        ]},
+        { nombre: 'Conservantes y Aroma', ingredientes: [
+          {nombre:'AE árbol de té',cantidad:'5',porcentaje:'—',unidad:'gotas'},
+          {nombre:'AE lavanda o limón',cantidad:'5',porcentaje:'—',unidad:'gotas'},
+          {nombre:'Conservante natural (sorbato de potasio)',cantidad:'según dosis',porcentaje:'—',unidad:'g'},
+        ]}
+      ],
+      pasos: [
+        'Disolver la goma xantana en una pequeña parte del agua, batiendo hasta formar gel.',
+        'Incorporar el resto del agua y el gel de áloe vera, mezclando bien.',
+        'Añadir el extracto de hamamelis y la niacinamida.',
+        'Incorporar el coco glucósido lentamente para evitar exceso de espuma.',
+        'Agregar aceites esenciales y conservante. Homogeneizar.',
+        'Envasar en frasco limpio. Conservar en lugar fresco.'
+      ]
+    },
+    {
+      id: 5, nombre: 'Acondicionador Líquido de Palta y Coco', categoria: 'Capilar',
+      rendimiento: '500', unidad_rendimiento: 'g',
+      notas: 'Ideal para cabello seco, dañado o normal. Envasar en frasco esterilizado.',
+      fases: [
+        { nombre: 'Fase A — Oleosa (70°C)', ingredientes: [
+          {nombre:'BTMS (emulsionante catiónico)',cantidad:'5.8',porcentaje:'1.2',unidad:'g'},
+          {nombre:'Alcohol cetílico',cantidad:'3.7',porcentaje:'0.7',unidad:'g'},
+          {nombre:'Alcohol cetoestearílico',cantidad:'3',porcentaje:'0.6',unidad:'g'},
+          {nombre:'Aceite de palta',cantidad:'10',porcentaje:'2',unidad:'g'},
+          {nombre:'Aceite de coco',cantidad:'12.5',porcentaje:'2.5',unidad:'g'},
+        ]},
+        { nombre: 'Fase B — Acuosa (70°C)', ingredientes: [
+          {nombre:'Agua de rosas',cantidad:'100',porcentaje:'20',unidad:'g'},
+          {nombre:'Agua de hamamelis',cantidad:'50',porcentaje:'10',unidad:'g'},
+          {nombre:'Agua desmineralizada',cantidad:'230',porcentaje:'46',unidad:'g'},
+          {nombre:'Glicerina vegetal',cantidad:'15',porcentaje:'3',unidad:'g'},
+        ]},
+        { nombre: 'Fase C — En Frío (<40°C)', ingredientes: [
+          {nombre:'Sorbato de potasio',cantidad:'1',porcentaje:'0.2',unidad:'g'},
+          {nombre:'Benzoato de sodio',cantidad:'1',porcentaje:'0.2',unidad:'g'},
+          {nombre:'Conservante Eco (1%)',cantidad:'5',porcentaje:'1',unidad:'g'},
+          {nombre:'Aceite esencial (opcional)',cantidad:'3',porcentaje:'0.6',unidad:'g'},
+        ]}
+      ],
+      pasos: [
+        'Calentar la Fase A y la Fase B por separado hasta 70°C.',
+        'Verter la Fase B sobre la Fase A lentamente, batiendo con mixer.',
+        'Cuando emulsiona y enfría a menos de 40°C, agregar la Fase C.',
+        'Medir y ajustar el pH si es necesario.',
+        'Envasar en frasco limpio y esterilizado.'
+      ]
+    }
+  ],
+  stock: [
+    {id:1,nombre:'Aceite de coco',cantidad:500,unidad:'g',minimo:50,categoria:'Aceite vegetal',precio_actual:null,historial_precios:[]},
+    {id:2,nombre:'Manteca de karité',cantidad:200,unidad:'g',minimo:30,categoria:'Manteca',precio_actual:null,historial_precios:[]},
+    {id:3,nombre:'Aceite de jojoba',cantidad:100,unidad:'ml',minimo:20,categoria:'Aceite vegetal',precio_actual:null,historial_precios:[]},
+    {id:4,nombre:'Glicerina vegetal',cantidad:300,unidad:'g',minimo:50,categoria:'Humectante',precio_actual:null,historial_precios:[]},
+    {id:5,nombre:'Óxido de zinc',cantidad:150,unidad:'g',minimo:30,categoria:'Filtro solar',precio_actual:null,historial_precios:[]},
+    {id:6,nombre:'Gel de aloe vera',cantidad:80,unidad:'g',minimo:30,categoria:'Activo',precio_actual:null,historial_precios:[]},
+    {id:7,nombre:'AE lavanda',cantidad:15,unidad:'ml',minimo:5,categoria:'Aceite esencial',precio_actual:null,historial_precios:[]},
+    {id:8,nombre:'AE árbol de té',cantidad:10,unidad:'ml',minimo:5,categoria:'Aceite esencial',precio_actual:null,historial_precios:[]},
+    {id:9,nombre:'Bicarbonato de sodio',cantidad:400,unidad:'g',minimo:50,categoria:'Ingrediente base',precio_actual:null,historial_precios:[]},
+    {id:10,nombre:'Almidón de maíz',cantidad:250,unidad:'g',minimo:40,categoria:'Ingrediente base',precio_actual:null,historial_precios:[]},
+    {id:11,nombre:'Dióxido de titanio',cantidad:80,unidad:'g',minimo:20,categoria:'Filtro solar',precio_actual:null,historial_precios:[]},
+    {id:12,nombre:'Vitamina E',cantidad:20,unidad:'g',minimo:5,categoria:'Activo',precio_actual:null,historial_precios:[]},
+  ]
+};
+
+// ── STORAGE ───────────────────────────────────────────────────────────────
+let fileHandle = null;  // File System Access API handle
+
+function saveDB() {
+  try { localStorage.setItem('cosmetica_lab_v2', JSON.stringify(db)); } catch(e){}
+  // Auto-embed: si tenemos permiso sobre el archivo, reescribirlo
+  if (fileHandle) embedEnArchivo(false);
+  updateAutosaveStatus();
+}
+
+function loadDB() {
+  try {
+    const s = localStorage.getItem('cosmetica_lab_v2');
+    if (s) { db = JSON.parse(s); return; }
+  } catch(e){}
+  db = JSON.parse(JSON.stringify(DEFAULT_DATA));
+  saveDB();
+}
+
+// ── AUTO-EMBED (Opción B) ─────────────────────────────────────────────────
+// Genera el HTML completo con los datos incrustados y lo escribe en el archivo
+async function getHtmlConDatos() {
+  // Leer el HTML original como texto
+  const resp = await fetch(location.href);
+  let html   = await resp.text();
+  // Reemplazar el bloque de datos embebidos (si existe) o insertar uno nuevo
+  const marker  = '/* __EMBEDDED_DATA__ */';
+  const dataLine = `${marker}\ntry{const _d=JSON.parse('${JSON.stringify(db).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,'\\n')}');localStorage.setItem('cosmetica_lab_v2',JSON.stringify(_d));}catch(e){}${marker}`;
+  if (html.includes(marker)) {
+    html = html.replace(new RegExp(`\\/\\* __EMBEDDED_DATA__ \\*\\/[\\s\\S]*?\\/\\* __EMBEDDED_DATA__ \\*\\/`), dataLine);
+  } else {
+    // Insertar justo antes del cierre del script de init
+    html = html.replace('// ── INIT ──────────────────────────────────────────────────────────────────', dataLine + '\n// ── INIT ──────────────────────────────────────────────────────────────────');
+  }
+  return html;
+}
+
+async function guardarEnArchivo() {
+  if (!window.showSaveFilePicker) {
+    showToast('Tu navegador no soporta esta función. Usá Chrome o Edge.');
+    return;
+  }
+  try {
+    if (!fileHandle) {
+      fileHandle = await window.showSaveFilePicker({
+        suggestedName: 'LaboratorioNatural.html',
+        types: [{ description: 'Aplicación HTML', accept: { 'text/html': ['.html'] } }]
+      });
+    }
+    await embedEnArchivo(true);
+  } catch(e) {
+    if (e.name !== 'AbortError') showToast('Error al guardar: ' + e.message);
+  }
+}
+
+async function embedEnArchivo(showFeedback = true) {
+  if (!fileHandle) return;
+  try {
+    const perm = await fileHandle.queryPermission({ mode: 'readwrite' });
+    if (perm !== 'granted') {
+      const req = await fileHandle.requestPermission({ mode: 'readwrite' });
+      if (req !== 'granted') return;
+    }
+    const html     = await getHtmlConDatos();
+    const writable = await fileHandle.createWritable();
+    await writable.write(html);
+    await writable.close();
+    if (showFeedback) showToast('Archivo guardado con datos embebidos ✓');
+    updateAutosaveStatus('guardado');
+  } catch(e) {
+    if (showFeedback) showToast('No se pudo escribir el archivo.');
+  }
+}
+
+function updateAutosaveStatus(estado) {
+  const dot   = document.getElementById('autosave-dot');
+  const label = document.getElementById('autosave-label');
+  if (!dot || !label) return;
+  if (fileHandle) {
+    dot.style.background   = '#6a9e78';
+    label.textContent      = estado === 'guardado' ? 'Guardado en archivo ✓' : 'Vinculado a archivo';
+  } else {
+    dot.style.background   = 'rgba(255,255,255,0.3)';
+    label.textContent      = 'Solo en navegador';
+  }
+}
+
+let db = {};
+loadDB();
+updateAutosaveStatus();
+
+// ── NAV ───────────────────────────────────────────────────────────────────
+function showView(v) {
+  const views = ['recetas','stock','produccion','costos','ventas','dashboard'];
+  document.querySelectorAll('.nav-item').forEach((b,i) =>
+    b.classList.toggle('active', views[i] === v));
+  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+  document.getElementById('view-' + v).classList.add('active');
+  cerrarBuscadorGlobal();
+  if (v === 'recetas')    renderRecetas();
+  if (v === 'stock')      renderStock();
+  if (v === 'produccion') renderProduccion();
+  if (v === 'costos')     initCostos();
+  if (v === 'ventas')     renderVentas();
+  if (v === 'dashboard')  renderDashboard();
+}
+
+// ── BUSCADOR GLOBAL ────────────────────────────────────────────────────────
+function buscarGlobal(q) {
+  const res  = document.getElementById('global-search-results');
+  const hint = document.getElementById('global-search-hint');
+  if (!q || q.trim().length < 2) { cerrarBuscadorGlobal(); return; }
+  const ql = q.toLowerCase();
+
+  const recetas = db.recetas.filter(r =>
+    r.nombre.toLowerCase().includes(ql) ||
+    r.categoria.toLowerCase().includes(ql) ||
+    r.fases.some(f => f.ingredientes.some(i => i.nombre.toLowerCase().includes(ql)))
+  ).slice(0, 5);
+
+  const stock = db.stock.filter(s =>
+    s.nombre.toLowerCase().includes(ql) ||
+    (s.categoria||'').toLowerCase().includes(ql)
+  ).slice(0, 5);
+
+  const lotes = (db.produccion||[]).filter(l =>
+    l.nombre_receta.toLowerCase().includes(ql) ||
+    (l.lote||'').toLowerCase().includes(ql) ||
+    (l.comentarios||'').toLowerCase().includes(ql)
+  ).slice(0, 4);
+
+  const ventas = (db.ventas||[]).filter(v =>
+    v.nombre_receta.toLowerCase().includes(ql) ||
+    (v.cliente||'').toLowerCase().includes(ql)
+  ).slice(0, 4);
+
+  if (!recetas.length && !stock.length && !lotes.length && !ventas.length) {
+    res.style.display = 'block';
+    res.innerHTML = `<div style="padding:16px 0;color:var(--text-light);font-size:13px">Sin resultados para "<strong>${q}</strong>"</div>`;
+    hint.textContent = '';
+    return;
+  }
+
+  function hl(txt) {
+    return String(txt).replace(new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi'), '<mark style="background:#c5e8cc;border-radius:2px;padding:0 2px">$1</mark>');
+  }
+
+  let html = '<div style="padding-top:8px">';
+  if (recetas.length) {
+    html += `<div style="font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--text-light);padding:6px 0 4px">Recetas</div>`;
+    html += recetas.map(r => `
+      <div class="g-result-row" onclick="cerrarBuscadorGlobal();showView('recetas');setTimeout(()=>openDetalleReceta(${r.id}),50)">
+        <span style="font-weight:500">${hl(r.nombre)}</span>
+        <span class="badge badge-green" style="font-size:10px">${r.categoria}</span>
+        <span style="font-size:12px;color:var(--text-light)">Rinde ${r.rendimiento} ${r.unidad_rendimiento}</span>
+      </div>`).join('');
+  }
+  if (stock.length) {
+    html += `<div style="font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--text-light);padding:10px 0 4px">Ingredientes</div>`;
+    html += stock.map(s => {
+      const pc = precioActual(s);
+      return `<div class="g-result-row" onclick="cerrarBuscadorGlobal();showView('stock')">
+        <span style="font-weight:500">${hl(s.nombre)}</span>
+        <span class="badge badge-gray" style="font-size:10px">${s.categoria||'—'}</span>
+        <span style="font-size:12px;color:var(--text-light)">${s.cantidad} ${s.unidad}${pc?' · '+fmt$(pc.precio_por_unidad)+'/'+s.unidad:''}</span>
+      </div>`;
+    }).join('');
+  }
+  if (lotes.length) {
+    html += `<div style="font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--text-light);padding:10px 0 4px">Lotes de producción</div>`;
+    html += lotes.map(l => `
+      <div class="g-result-row" onclick="cerrarBuscadorGlobal();showView('produccion')">
+        <span style="font-weight:500">${hl(l.nombre_receta)}</span>
+        ${l.lote?`<span class="badge badge-gold" style="font-size:10px">Lote ${l.lote}</span>`:''}
+        <span style="font-size:12px;color:var(--text-light)">${l.fecha_fabricacion} · ${l.cantidad} ${l.unidad}</span>
+      </div>`).join('');
+  }
+  if (ventas.length) {
+    html += `<div style="font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--text-light);padding:10px 0 4px">Ventas</div>`;
+    html += ventas.map(v => `
+      <div class="g-result-row" onclick="cerrarBuscadorGlobal();showView('ventas')">
+        <span style="font-weight:500">${hl(v.nombre_receta)}</span>
+        ${v.cliente?`<span style="font-size:12px;color:var(--text-mid)">${hl(v.cliente)}</span>`:''}
+        <span style="font-size:12px;color:var(--text-light)">${v.fecha} · ${fmt$(v.precio_total)}</span>
+      </div>`).join('');
+  }
+  html += '</div>';
+
+  res.style.display = 'block';
+  res.innerHTML = html;
+  hint.textContent = `${recetas.length+stock.length+lotes.length+ventas.length} resultado${(recetas.length+stock.length+lotes.length+ventas.length)!==1?'s':''}`;
+}
+
+function cerrarBuscadorGlobal() {
+  const res = document.getElementById('global-search-results');
+  const inp = document.getElementById('global-search-input');
+  const hint= document.getElementById('global-search-hint');
+  if (res)  { res.style.display = 'none'; res.innerHTML = ''; }
+  if (inp)  inp.value = '';
+  if (hint) hint.textContent = 'Buscá por nombre, categoría, ingrediente o lote';
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('#global-search-bar') && !e.target.closest('#global-search-results'))
+    cerrarBuscadorGlobal();
+});
+
+// ── PREPARAR (desde topbar) ────────────────────────────────────────────────
+function seleccionarYPreparar() {
+  showModal(`
+    <div class="modal-title">Preparar fórmula</div>
+    <label>Seleccioná la receta a preparar</label>
+    <select id="sel-prep-receta" style="margin-bottom:16px">
+      <option value="">—</option>
+      ${db.recetas.map(r=>`<option value="${r.id}">${r.nombre}</option>`).join('')}
+    </select>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-gold" onclick="(() => { const id=parseInt(document.getElementById('sel-prep-receta').value); if(!id)return; closeModal(); prepararReceta(id); })()">Continuar</button>
+    </div>
+  `);
+}
+
+// ── VENTAS ─────────────────────────────────────────────────────────────────
+function renderVentas() {
+  if (!db.ventas) db.ventas = [];
+
+  const selR = document.getElementById('ventas-filter-receta');
+  if (selR) {
+    const cur = selR.value;
+    selR.innerHTML = '<option value="">Todas las fórmulas</option>' +
+      db.recetas.map(r=>`<option value="${r.id}"${cur==r.id?' selected':''}>${r.nombre}</option>`).join('');
+  }
+
+  const q       = (document.getElementById('ventas-search')||{}).value||'';
+  const filtRec = (document.getElementById('ventas-filter-receta')||{}).value||'';
+
+  const lista = db.ventas.filter(v =>
+    (!q || v.nombre_receta.toLowerCase().includes(q.toLowerCase()) || (v.cliente||'').toLowerCase().includes(q.toLowerCase()) || (v.comentarios||'').toLowerCase().includes(q.toLowerCase())) &&
+    (!filtRec || v.receta_id == filtRec)
+  ).sort((a,b) => b.fecha.localeCompare(a.fecha));
+
+  // Métricas
+  const totalVentas    = db.ventas.length;
+  const totalIngresos  = db.ventas.reduce((s,v) => s + (parseFloat(v.precio_total)||0), 0);
+  const totalCostos    = db.ventas.reduce((s,v) => s + (parseFloat(v.costo_total)||0), 0);
+  const margenTotal    = totalIngresos - totalCostos;
+
+  const cont = document.getElementById('ventas-content');
+  cont.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+      <div class="stat-card"><div class="stat-num">${totalVentas}</div><div class="stat-lbl">Ventas registradas</div></div>
+      <div class="stat-card"><div class="stat-num" style="font-size:22px">${fmt$(totalIngresos)}</div><div class="stat-lbl">Ingresos totales</div></div>
+      <div class="stat-card"><div class="stat-num" style="font-size:22px">${fmt$(totalCostos)}</div><div class="stat-lbl">Costo total</div></div>
+      <div class="stat-card"><div class="stat-num" style="font-size:22px;color:${margenTotal>=0?'var(--green-mid)':'var(--red)'}">${fmt$(margenTotal)}</div><div class="stat-lbl">Margen neto</div></div>
+    </div>
+    ${lista.length === 0
+      ? `<div class="empty-state"><div class="empty-icon" style="font-size:32px">🛍</div><p>No hay ventas registradas todavía.</p></div>`
+      : `<div class="card" style="padding:0;overflow:hidden">
+          <table class="data-table">
+            <thead><tr>
+              <th>Fecha</th><th>Fórmula</th><th>Cliente</th><th>Cantidad</th><th>Precio venta</th><th>Costo</th><th>Margen</th><th style="text-align:right">Acciones</th>
+            </tr></thead>
+            <tbody>
+            ${lista.map(v => {
+              const margen = (parseFloat(v.precio_total)||0) - (parseFloat(v.costo_total)||0);
+              const pct    = v.precio_total ? Math.round(margen/(parseFloat(v.precio_total))*100) : null;
+              return `<tr>
+                <td style="color:var(--text-mid);font-size:12px">${v.fecha}</td>
+                <td style="font-weight:500">${v.nombre_receta}</td>
+                <td style="color:var(--text-mid)">${v.cliente||'—'}</td>
+                <td style="color:var(--text-mid)">${v.cantidad} ${v.unidad}</td>
+                <td style="font-weight:500;color:var(--green-deep)">${fmt$(v.precio_total)}</td>
+                <td style="color:var(--text-mid)">${v.costo_total ? fmt$(v.costo_total) : '—'}</td>
+                <td>
+                  ${margen && v.costo_total ? `<span style="font-weight:500;color:${margen>=0?'var(--green-mid)':'var(--red)'}">${fmt$(margen)}</span>
+                  ${pct!==null?`<span style="font-size:11px;color:var(--text-light);margin-left:4px">(${pct}%)</span>`:''}` : '—'}
+                </td>
+                <td><div class="actions">
+                  <button class="btn btn-sm" onclick="openFormVenta(db.ventas.find(x=>x.id===${v.id}))">Editar</button>
+                  <button class="btn btn-sm btn-danger" onclick="eliminarVenta(${v.id})">✕</button>
+                </div></td>
+              </tr>`;
+            }).join('')}
+            </tbody>
+          </table>
+        </div>`}`;
+}
+
+function openFormVenta(venta) {
+  const es = !!venta;
+
+  // Calcular costo automático si hay receta seleccionada
+  function calcCosto(recetaId) {
+    const r = db.recetas.find(x => x.id === recetaId);
+    if (!r) return null;
+    let total = 0;
+    r.fases.forEach(f => f.ingredientes.forEach(i => {
+      const cant = parseFloat(i.cantidad);
+      const s    = db.stock.find(st => st.nombre.toLowerCase() === i.nombre.toLowerCase());
+      const pc   = s ? precioActual(s) : null;
+      if (cant && pc) total += cant * pc.precio_por_unidad;
+    }));
+    return total > 0 ? total : null;
+  }
+
+  window._guardarVenta = () => {
+    const recetaId = parseInt(document.getElementById('vt-receta').value);
+    const receta   = db.recetas.find(r => r.id === recetaId);
+    if (!receta) { alert('Seleccioná una fórmula'); return; }
+    const fecha = document.getElementById('vt-fecha').value;
+    const precio= parseFloat(document.getElementById('vt-precio').value);
+    if (!fecha || !precio) { alert('Completá fecha y precio de venta'); return; }
+    const cantVendida = parseFloat(document.getElementById('vt-cant').value) || 0;
+    const loteId = parseInt(document.getElementById('vt-lote-sel')?.value) || null;
+
+    const obj = {
+      id:             es ? venta.id : Date.now(),
+      receta_id:      recetaId,
+      nombre_receta:  receta.nombre,
+      fecha,
+      cliente:        document.getElementById('vt-cliente').value.trim(),
+      cantidad:       document.getElementById('vt-cant').value.trim(),
+      unidad:         document.getElementById('vt-unidad').value,
+      precio_total:   precio,
+      precio_unitario: parseFloat(document.getElementById('vt-precio-unit').value)||null,
+      costo_total:    parseFloat(document.getElementById('vt-costo').value)||null,
+      lote_id:        loteId,
+      comentarios:    document.getElementById('vt-comentarios').value.trim()
+    };
+
+    // Descontar del lote de producción correspondiente
+    if (loteId && cantVendida > 0) {
+      const lote = db.produccion.find(l => l.id === loteId);
+      if (lote) {
+        lote.vendidos = Math.round(((parseFloat(lote.vendidos)||0) + cantVendida) * 10000) / 10000;
+        // Si vendidos >= total, marcar agotado
+        if (lote.vendidos >= (parseFloat(lote.cantidad)||0)) lote.estado = 'agotado';
+      }
+    }
+
+    if (!db.ventas) db.ventas = [];
+    if (es) { const i = db.ventas.findIndex(x=>x.id===venta.id); db.ventas[i]=obj; }
+    else db.ventas.push(obj);
+    saveDB(); closeModal(); renderVentas();
+  };
+
+  window._onRecetaChange = () => {
+    const id = parseInt(document.getElementById('vt-receta').value);
+    const costo = calcCosto(id);
+    const costoEl = document.getElementById('vt-costo');
+    const costoInfo = document.getElementById('vt-costo-info');
+    if (costo && costoEl) {
+      costoEl.value = costo.toFixed(2);
+      if (costoInfo) costoInfo.textContent = `Auto-calculado desde precios de stock: ${fmt$(costo)}`;
+    } else if (costoInfo) {
+      costoInfo.textContent = 'Sin precios cargados en stock para esta fórmula';
+    }
+    // Poblar selector de lotes disponibles para esta receta
+    const loteSel = document.getElementById('vt-lote-sel');
+    if (loteSel) {
+      const lotes = (db.produccion||[]).filter(l => l.receta_id === id && (parseFloat(l.vendidos)||0) < (parseFloat(l.cantidad)||0));
+      loteSel.innerHTML = '<option value="">— sin vincular a lote —</option>' +
+        lotes.map(l => {
+          const disp = parseFloat(l.cantidad) - (parseFloat(l.vendidos)||0);
+          return `<option value="${l.id}">${l.lote?'Lote '+l.lote+' · ':''} ${l.fecha_fabricacion} — ${disp.toFixed(2)} ${l.unidad} disponibles</option>`;
+        }).join('');
+    }
+  };
+
+  const initLotes = es && venta.receta_id
+    ? (db.produccion||[]).filter(l => l.receta_id === venta.receta_id && ((parseFloat(l.vendidos)||0) < (parseFloat(l.cantidad)||0) || l.id === venta.lote_id))
+    : [];
+
+  const initRecetaId = es ? venta.receta_id : '';
+  const initCosto    = es ? venta.costo_total : (initRecetaId ? calcCosto(initRecetaId) : null);
+
+  showModal(`
+    <div class="modal-title">${es?'Editar venta':'Registrar venta'}</div>
+    <div class="grid2">
+      <div>
+        <label>Fórmula vendida</label>
+        <select id="vt-receta" onchange="window._onRecetaChange()">
+          <option value="">Seleccioná...</option>
+          ${db.recetas.map(r=>`<option value="${r.id}"${es&&venta.receta_id===r.id?' selected':''}>${r.nombre}</option>`).join('')}
+        </select>
+      </div>
+      <div><label>Fecha de venta</label><input type="date" id="vt-fecha" value="${es?venta.fecha:hoy()}" /></div>
+    </div>
+    <div class="grid2 mt12">
+      <div><label>Cliente (opcional)</label><input id="vt-cliente" placeholder="Nombre del cliente" value="${es?venta.cliente||'':''}" /></div>
+      <div class="grid2">
+        <div><label>Cantidad</label><input id="vt-cant" placeholder="ej: 100" value="${es?venta.cantidad||'':''}" /></div>
+        <div><label>Unidad</label><select id="vt-unidad">${['g','ml','unidad','kg','l'].map(u=>`<option${es&&venta.unidad===u?' selected':''}>${u}</option>`).join('')}</select></div>
+      </div>
+    </div>
+    <div class="mt12">
+      <label>Descontar del lote de producción <span style="font-weight:400;color:var(--text-light)">(opcional)</span></label>
+      <select id="vt-lote-sel">
+        <option value="">— sin vincular a lote —</option>
+        ${initLotes.map(l => {
+          const disp = parseFloat(l.cantidad) - (parseFloat(l.vendidos)||0);
+          return `<option value="${l.id}"${es&&venta.lote_id===l.id?' selected':''}>${l.lote?'Lote '+l.lote+' · ':''}${l.fecha_fabricacion} — ${disp.toFixed(2)} ${l.unidad} disponibles</option>`;
+        }).join('')}
+      </select>
+    </div>
+    <div class="grid2 mt12">
+      <div><label>Precio de venta total ($)</label><input type="number" min="0" step="0.01" id="vt-precio" placeholder="ej: 5000" value="${es?venta.precio_total||'':''}" /></div>
+      <div><label>Precio por unidad ($)</label><input type="number" min="0" step="0.01" id="vt-precio-unit" placeholder="ej: 50" value="${es?venta.precio_unitario||'':''}" /></div>
+    </div>
+    <div class="mt12" style="background:var(--green-xpale);border-radius:var(--radius);padding:12px">
+      <label>Costo total ($) <span style="font-weight:400;color:var(--text-light)">(auto-calculado o ingresá manualmente)</span></label>
+      <input type="number" min="0" step="0.01" id="vt-costo" placeholder="Se calcula desde stock" value="${initCosto ? initCosto.toFixed(2) : es&&venta.costo_total?venta.costo_total:''}" />
+      <div id="vt-costo-info" style="font-size:11px;color:var(--text-light);margin-top:4px">${initCosto?'Auto-calculado desde precios de stock: '+fmt$(initCosto):'Seleccioná una fórmula para auto-calcular'}</div>
+    </div>
+    <div class="mt12"><label>Comentarios</label>
+      <textarea id="vt-comentarios" placeholder="Canal de venta, observaciones...">${es?venta.comentarios||'':''}</textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="window._guardarVenta()">Guardar venta</button>
+    </div>
+  `);
+}
+
+function eliminarVenta(id) {
+  if (!confirm('¿Eliminar esta venta?')) return;
+  db.ventas = db.ventas.filter(v => v.id !== id);
+  saveDB(); renderVentas();
+}
+
+// ── PRODUCCIÓN ────────────────────────────────────────────────────────────
+function renderProduccion() {
+  if (!db.produccion) db.produccion = [];
+
+  const selR = document.getElementById('prod-filter-receta');
+  if (selR) {
+    const cur = selR.value;
+    selR.innerHTML = '<option value="">Todas las fórmulas</option>' +
+      db.recetas.map(r => `<option value="${r.id}"${cur==r.id?' selected':''}>${r.nombre}</option>`).join('');
+  }
+
+  const q       = (document.getElementById('prod-search')||{}).value||'';
+  const filtRec = (document.getElementById('prod-filter-receta')||{}).value||'';
+  const filtEst = (document.getElementById('prod-filter-estado')||{}).value||'';
+
+  const lista = db.produccion.filter(l =>
+    (!q || l.nombre_receta.toLowerCase().includes(q.toLowerCase()) || (l.lote||'').toLowerCase().includes(q.toLowerCase()) || (l.comentarios||'').toLowerCase().includes(q.toLowerCase())) &&
+    (!filtRec || l.receta_id == filtRec) &&
+    (!filtEst || l.estado === filtEst)
+  ).sort((a,b) => b.fecha_fabricacion.localeCompare(a.fecha_fabricacion));
+
+  const hoyMs = new Date().setHours(0,0,0,0);
+
+  // Stats globales
+  const totalLotes     = db.produccion.length;
+  const totalProd      = db.produccion.reduce((s,l) => s + (parseFloat(l.cantidad)||0), 0);
+  const totalVendidos  = db.produccion.reduce((s,l) => s + (parseFloat(l.vendidos)||0), 0);
+  const totalEnStock   = totalProd - totalVendidos;
+  const vencProx = db.produccion.filter(l => {
+    if (!l.fecha_vencimiento) return false;
+    const d = Math.round((new Date(l.fecha_vencimiento).getTime() - hoyMs) / 86400000);
+    return d >= 0 && d <= 30;
+  }).length;
+
+  const cont = document.getElementById('prod-content');
+  cont.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px">
+      <div class="stat-card"><div class="stat-num">${totalLotes}</div><div class="stat-lbl">Lotes</div></div>
+      <div class="stat-card"><div class="stat-num" style="font-size:20px">${totalProd.toFixed(1)}</div><div class="stat-lbl">Total producido</div></div>
+      <div class="stat-card"><div class="stat-num" style="font-size:20px;color:var(--gold)">${totalVendidos.toFixed(1)}</div><div class="stat-lbl">Total vendido</div></div>
+      <div class="stat-card"><div class="stat-num" style="font-size:20px;color:var(--green-mid)">${totalEnStock.toFixed(1)}</div><div class="stat-lbl">En stock</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:${vencProx?'var(--amber)':'var(--green-deep)'}">${vencProx}</div><div class="stat-lbl">Vencen en 30d</div></div>
+    </div>
+    ${lista.length === 0
+      ? `<div class="empty-state"><div class="empty-icon">🧴</div><p>No hay lotes registrados. Usá "Preparar fórmula" para crear el primero.</p></div>`
+      : lista.map(l => {
+          const total    = parseFloat(l.cantidad) || 0;
+          const vendidos = parseFloat(l.vendidos) || 0;
+          const enStock  = Math.max(0, total - vendidos);
+          const pctVend  = total > 0 ? Math.round(vendidos/total*100) : 0;
+
+          const vMs  = l.fecha_vencimiento ? new Date(l.fecha_vencimiento).getTime() : null;
+          const dias  = vMs ? Math.round((vMs - hoyMs) / 86400000) : null;
+          let vencBdg = '';
+          if (dias !== null) {
+            if (dias < 0)        vencBdg = `<span class="badge badge-venc-exp">Vencido hace ${Math.abs(dias)}d</span>`;
+            else if (dias <= 30) vencBdg = `<span class="badge badge-venc-warn">Vence en ${dias}d</span>`;
+            else                 vencBdg = `<span class="badge badge-venc-ok">Vence ${l.fecha_vencimiento}</span>`;
+          }
+          const estadoAuto = enStock <= 0 ? 'agotado' : (l.estado || 'disponible');
+          const estadoBadge = { disponible:'badge-green', reservado:'badge-amber', agotado:'badge-gray' }[estadoAuto] || 'badge-gray';
+
+          return `
+          <div class="card" style="margin-bottom:10px;padding:16px 20px">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+              <div style="flex:1;min-width:0">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+                  <span style="font-size:15px;font-weight:500;color:var(--green-deep)">${l.nombre_receta}</span>
+                  ${l.lote ? `<span class="badge badge-gold" style="font-size:10px">Lote ${l.lote}</span>` : ''}
+                  <span class="badge ${estadoBadge}">${estadoAuto}</span>
+                  ${vencBdg}
+                </div>
+                <!-- Barra de progreso vendidos -->
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:10px">
+                  <div>
+                    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-light);margin-bottom:3px">Total producido</div>
+                    <div style="font-size:15px;font-weight:500;color:var(--text)">${total} ${l.unidad}</div>
+                  </div>
+                  <div>
+                    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-light);margin-bottom:3px">Vendido</div>
+                    <div style="font-size:15px;font-weight:500;color:var(--gold)">${vendidos} ${l.unidad}</div>
+                  </div>
+                  <div>
+                    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-light);margin-bottom:3px">En stock</div>
+                    <div style="font-size:15px;font-weight:500;color:var(--green-mid)">${enStock.toFixed(2)} ${l.unidad}</div>
+                  </div>
+                </div>
+                <div class="progress-wrap" style="height:6px;margin-bottom:8px">
+                  <div class="progress-fill" style="width:${pctVend}%;background:var(--gold)"></div>
+                </div>
+                <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text-mid)">
+                  <span>🗓 Fabricado: ${l.fecha_fabricacion}</span>
+                  ${l.fecha_vencimiento ? `<span>⏳ Vence: ${l.fecha_vencimiento}</span>` : ''}
+                </div>
+                ${l.comentarios ? `<div style="font-size:12px;color:var(--text-mid);font-style:italic;border-left:2px solid var(--border);padding-left:8px;margin-top:8px">${l.comentarios}</div>` : ''}
+              </div>
+              <div style="display:flex;gap:4px;flex-shrink:0">
+                <button class="btn btn-sm" onclick="openFormLote(db.produccion.find(x=>x.id===${l.id}))">Editar</button>
+                <button class="btn btn-sm btn-danger" onclick="eliminarLote(${l.id})">✕</button>
+              </div>
+            </div>
+          </div>`;
+        }).join('')}`;
+}
+
+function openFormLote(lote) {
+  const es = !!lote;
+  window._guardarLote = () => {
+    const recetaId = parseInt(document.getElementById('pl-receta').value);
+    const receta   = db.recetas.find(r => r.id === recetaId);
+    if (!receta) { alert('Seleccioná una fórmula'); return; }
+    const cantidad = document.getElementById('pl-cant').value.trim();
+    const fechaFab = document.getElementById('pl-fecha-fab').value;
+    if (!cantidad || !fechaFab) { alert('Completá cantidad y fecha de fabricación'); return; }
+    const obj = {
+      id:               es ? lote.id : Date.now(),
+      receta_id:        recetaId,
+      nombre_receta:    receta.nombre,
+      lote:             document.getElementById('pl-lote').value.trim(),
+      cantidad:         cantidad,
+      unidad:           document.getElementById('pl-unidad').value,
+      fecha_fabricacion: fechaFab,
+      fecha_vencimiento: document.getElementById('pl-fecha-venc').value || null,
+      estado:           document.getElementById('pl-estado').value,
+      comentarios:      document.getElementById('pl-comentarios').value.trim()
+    };
+    if (!db.produccion) db.produccion = [];
+    if (es) { const i = db.produccion.findIndex(x=>x.id===lote.id); db.produccion[i]=obj; }
+    else db.produccion.push(obj);
+    saveDB(); closeModal(); renderProduccion();
+  };
+
+  showModal(`
+    <div class="modal-title">${es ? 'Editar lote' : 'Registrar nuevo lote'}</div>
+    <label>Fórmula / Receta</label>
+    <select id="pl-receta" style="margin-bottom:12px">
+      <option value="">Seleccioná una fórmula...</option>
+      ${db.recetas.map(r => `<option value="${r.id}"${es&&lote.receta_id===r.id?' selected':''}>${r.nombre}</option>`).join('')}
+    </select>
+    <div class="grid2">
+      <div><label>N° de lote (opcional)</label><input id="pl-lote" placeholder="ej: L-001" value="${es?lote.lote||'':''}" /></div>
+      <div><label>Estado</label>
+        <select id="pl-estado">
+          <option value="disponible"${!es||lote.estado==='disponible'?' selected':''}>Disponible</option>
+          <option value="reservado"${es&&lote.estado==='reservado'?' selected':''}>Reservado</option>
+          <option value="agotado"${es&&lote.estado==='agotado'?' selected':''}>Agotado</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid2 mt12">
+      <div><label>Cantidad producida</label><input id="pl-cant" placeholder="ej: 200" value="${es?lote.cantidad:''}" /></div>
+      <div><label>Unidad</label>
+        <select id="pl-unidad">${['g','ml','unidad','kg','l'].map(u=>`<option${es&&lote.unidad===u?' selected':''}>${u}</option>`).join('')}</select>
+      </div>
+    </div>
+    <div class="grid2 mt12">
+      <div><label>Fecha de fabricación</label><input type="date" id="pl-fecha-fab" value="${es?lote.fecha_fabricacion:hoy()}" /></div>
+      <div><label>Fecha de vencimiento</label><input type="date" id="pl-fecha-venc" value="${es&&lote.fecha_vencimiento?lote.fecha_vencimiento:''}" /></div>
+    </div>
+    <div class="mt12"><label>Comentarios</label>
+      <textarea id="pl-comentarios" placeholder="Notas de elaboración, observaciones, ajustes realizados...">${es?lote.comentarios||'':''}</textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="window._guardarLote()">Guardar lote</button>
+    </div>
+  `);
+}
+
+function eliminarLote(id) {
+  const lote = db.produccion.find(l => l.id === id);
+  if (!lote) return;
+
+  // Calcular qué se devolvería al stock
+  const receta = db.recetas.find(r => r.id === lote.receta_id);
+  const mult   = parseFloat(lote.cantidad) / Math.max(parseFloat(receta?.rendimiento)||1, 0.0001);
+  const devolubles = [];
+  if (receta) {
+    receta.fases.forEach(f => f.ingredientes.forEach(i => {
+      const cant = parseFloat(i.cantidad);
+      if (!cant) return;
+      const s = db.stock.find(st => st.nombre.toLowerCase() === i.nombre.toLowerCase());
+      if (s) devolubles.push({ stock: s, cantidad: +(cant * mult).toFixed(4), unidad: i.unidad });
+    }));
+  }
+
+  showModal(`
+    <div class="modal-title">Eliminar lote</div>
+    <p style="font-size:13px;color:var(--text-mid);margin-bottom:16px">
+      Estás por eliminar <strong>${lote.nombre_receta}${lote.lote?' — Lote '+lote.lote:''}</strong>
+      (${lote.cantidad} ${lote.unidad}, fabricado el ${lote.fecha_fabricacion}).
+    </p>
+    ${devolubles.length ? `
+      <div style="font-size:13px;font-weight:500;margin-bottom:8px">¿Qué hacemos con el stock de ingredientes?</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:13px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--green-xpale)">
+          <input type="radio" name="del-stock" value="devolver" checked style="margin-top:2px;width:auto" />
+          <div>
+            <div style="font-weight:500;color:var(--green-deep)">Devolver ingredientes al stock</div>
+            <div style="font-size:12px;color:var(--text-mid);margin-top:2px">Usá esto si el lote fue un error y nunca se fabricó realmente.</div>
+          </div>
+        </label>
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:13px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius)">
+          <input type="radio" name="del-stock" value="mantener" style="margin-top:2px;width:auto" />
+          <div>
+            <div style="font-weight:500">No devolver ingredientes</div>
+            <div style="font-size:12px;color:var(--text-mid);margin-top:2px">Usá esto si el lote existe físicamente y solo corregís un registro.</div>
+          </div>
+        </label>
+      </div>
+      <div style="background:var(--green-xpale);border-radius:var(--radius);padding:10px 12px;margin-bottom:16px">
+        <div style="font-size:11px;color:var(--text-mid);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em">Se devolvería al stock:</div>
+        ${devolubles.map(d=>`<div style="font-size:12px;color:var(--text-mid);padding:2px 0">+ ${d.cantidad} ${d.unidad} de <strong>${d.stock.nombre}</strong></div>`).join('')}
+      </div>` : `
+      <div class="alert-banner mb12" style="background:var(--amber-pale);border-color:#f0d090;color:var(--amber)">
+        ⚠ No se encontraron ingredientes vinculados en el stock para devolver.
+      </div>`}
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-danger" onclick="confirmarEliminarLote(${id})">Eliminar lote</button>
+    </div>
+  `);
+
+  window.confirmarEliminarLote = (lid) => {
+    const l   = db.produccion.find(x => x.id === lid);
+    const rec = db.recetas.find(r => r.id === l?.receta_id);
+    const modo = document.querySelector('input[name="del-stock"]:checked')?.value || 'mantener';
+
+    if (modo === 'devolver' && rec) {
+      const m = parseFloat(l.cantidad) / Math.max(parseFloat(rec.rendimiento)||1, 0.0001);
+      rec.fases.forEach(f => f.ingredientes.forEach(i => {
+        const cant = parseFloat(i.cantidad);
+        if (!cant) return;
+        const s = db.stock.find(st => st.nombre.toLowerCase() === i.nombre.toLowerCase());
+        if (s) s.cantidad = Math.round((s.cantidad + cant * m) * 10000) / 10000;
+      }));
+    }
+
+    db.produccion = db.produccion.filter(x => x.id !== lid);
+    saveDB(); closeModal();
+    showToast(modo === 'devolver' ? 'Lote eliminado y stock de ingredientes restaurado ✓' : 'Lote eliminado ✓');
+    renderProduccion();
+  };
+}
+
+// ── RECETAS ───────────────────────────────────────────────────────────────
+function filterRecetas() { renderRecetas(); }
+
+function renderRecetas() {
+  const q      = (document.getElementById('search-recetas')||{}).value||'';
+  const filtro = (document.getElementById('filtro-cat')||{}).value||'';
+
+  const sel = document.getElementById('filtro-cat');
+  if (sel) {
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">Todas las categorías</option>' +
+      CATEGORIAS.map(c => `<option value="${c}"${cur===c?' selected':''}>${c}</option>`).join('');
+  }
+
+  const lista = db.recetas.filter(r =>
+    (!q || r.nombre.toLowerCase().includes(q.toLowerCase()) || r.categoria.toLowerCase().includes(q.toLowerCase())) &&
+    (!filtro || r.categoria === filtro)
+  );
+
+  const wrap = document.getElementById('recetas-table-wrap');
+  if (!lista.length) {
+    wrap.innerHTML = `<div class="empty-state"><div class="empty-icon">🌿</div><p>No hay recetas. ¡Creá la primera!</p></div>`;
+    return;
+  }
+
+  wrap.innerHTML = `
+  <div class="card" style="padding:0;overflow:hidden">
+    <table class="data-table">
+      <thead><tr>
+        <th style="width:28%">Nombre</th>
+        <th>Categoría</th>
+        <th>Rinde</th>
+        <th>Ingredientes</th>
+        <th>Pasos</th>
+        <th>Última actualización</th>
+        <th style="text-align:right">Acciones</th>
+      </tr></thead>
+      <tbody>
+      ${lista.map(r => {
+        const totalIng = r.fases.reduce((a,f) => a + f.ingredientes.length, 0);
+        const ultAct = r.ultima_actualizacion
+          ? `<span style="font-size:12px;color:var(--text-mid)">${r.ultima_actualizacion}</span>${r.nota_actualizacion ? `<br><span style="font-size:11px;color:var(--text-light);font-style:italic">${r.nota_actualizacion}</span>` : ''}`
+          : `<span style="font-size:12px;color:var(--text-light)">—</span>`;
+        return `<tr>
+          <td style="font-weight:500;color:var(--green-deep);cursor:pointer" onclick="openDetalleReceta(${r.id})">${r.nombre}</td>
+          <td><span class="badge badge-green">${r.categoria}</span></td>
+          <td style="color:var(--text-mid)">${r.rendimiento} ${r.unidad_rendimiento}</td>
+          <td style="color:var(--text-mid)">${totalIng}</td>
+          <td style="color:var(--text-mid)">${r.pasos.length}</td>
+          <td>${ultAct}</td>
+          <td><div class="actions">
+            <button class="btn btn-sm" title="Ver" onclick="openDetalleReceta(${r.id})">Ver</button>
+            <button class="btn btn-sm" onclick="openFormReceta(db.recetas.find(x=>x.id===${r.id}))">Editar</button>
+            <button class="btn btn-sm btn-danger" onclick="eliminarReceta(${r.id})">✕</button>
+          </div></td>
+        </tr>`;
+      }).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+function openDetalleReceta(id) {
+  const r = db.recetas.find(x => x.id === id);
+  if (!r) return;
+  const ultAct = r.ultima_actualizacion
+    ? `<span style="opacity:.8;font-size:12px">Actualizada: ${r.ultima_actualizacion}${r.nota_actualizacion ? ' — '+r.nota_actualizacion : ''}</span>`
+    : '';
+  showModal(`
+    <div class="recipe-detail-header" style="margin:-28px -28px 20px;padding:24px 28px">
+      <span class="badge" style="background:rgba(255,255,255,0.2);color:#fff;margin-bottom:8px">${r.categoria}</span>
+      <h2>${r.nombre}</h2>
+      <div class="meta">Rinde ${r.rendimiento} ${r.unidad_rendimiento} &nbsp;·&nbsp; ${r.fases.reduce((a,f)=>a+f.ingredientes.length,0)} ingredientes &nbsp;·&nbsp; ${r.pasos.length} pasos</div>
+      ${ultAct ? `<div style="margin-top:6px">${ultAct}</div>` : ''}
+    </div>
+    <div class="ing-row-header"><span>Ingrediente</span><span>Cantidad</span><span>Unidad</span><span>%</span><span></span></div>
+    ${r.fases.map(f => `
+      <div class="fase-header">${f.nombre}</div>
+      ${f.ingredientes.map(i => `
+        <div class="ing-row" style="grid-template-columns:1fr 90px 70px 70px">
+          <span>${i.nombre}</span>
+          <span style="color:var(--text-mid)">${i.cantidad}</span>
+          <span style="color:var(--text-mid)">${i.unidad}</span>
+          <span style="color:var(--text-light)">${i.porcentaje}${i.porcentaje && i.porcentaje!=='—'?'%':''}</span>
+        </div>`).join('')}
+    `).join('')}
+    ${r.pasos.length ? `
+      <hr class="divider">
+      <div style="font-size:12px;font-weight:500;color:var(--text-mid);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Procedimiento</div>
+      ${r.pasos.map((p,i) => `<div class="flex" style="align-items:flex-start;margin-bottom:10px"><span class="step-pill">${i+1}</span><span style="font-size:13px;line-height:1.55">${p}</span></div>`).join('')}` : ''}
+    ${r.notas ? `<div class="alert-banner mt16">⚠ ${r.notas}</div>` : ''}
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal();openFormReceta(db.recetas.find(x=>x.id===${r.id}))">Editar</button>
+      <button class="btn btn-primary" onclick="closeModal();prepararReceta(${r.id})">Preparar</button>
+    </div>
+  `);
+}
+
+function openFormReceta(r) {
+  const es = !!r;
+  let fases = es ? JSON.parse(JSON.stringify(r.fases)) : [{nombre:'',ingredientes:[{nombre:'',cantidad:'',porcentaje:'',unidad:'g'}]}];
+  let pasos = es ? [...r.pasos] : [''];
+
+  function renderFasesHTML() {
+    return fases.map((f, fi) => `
+      <div style="border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:10px">
+        <div class="flex mb12">
+          <input placeholder="Nombre de la fase (ej: Fase Oleosa)" value="${f.nombre}" onchange="window._fN(${fi},this.value)" style="flex:1"/>
+          ${fases.length>1?`<button class="btn btn-sm btn-danger" onclick="window._rF(${fi})">Quitar fase</button>`:''}
+        </div>
+        <div class="ing-row-header"><span>Ingrediente</span><span>Cantidad</span><span>Unidad</span><span>%</span><span></span></div>
+        ${f.ingredientes.map((i,ii) => `
+          <div class="ing-row">
+            <input value="${i.nombre}" placeholder="Ingrediente" onchange="window._sI(${fi},${ii},'nombre',this.value)" style="font-size:12px"/>
+            <input value="${i.cantidad}" placeholder="Cant." onchange="window._sI(${fi},${ii},'cantidad',this.value)" style="font-size:12px"/>
+            <select onchange="window._sI(${fi},${ii},'unidad',this.value)" style="font-size:12px">
+              ${UNIDADES.map(u=>`<option${u===i.unidad?' selected':''}>${u}</option>`).join('')}
+            </select>
+            <input value="${i.porcentaje}" placeholder="%" onchange="window._sI(${fi},${ii},'porcentaje',this.value)" style="font-size:12px"/>
+            <button class="btn btn-ghost btn-sm" onclick="window._rI(${fi},${ii})" style="padding:4px 6px">✕</button>
+          </div>`).join('')}
+        <button class="btn btn-sm mt8" onclick="window._aI(${fi})">+ Ingrediente</button>
+      </div>`).join('');
+  }
+
+  function renderPasosHTML() {
+    return pasos.map((p,pi) => `
+      <div class="flex mt8" style="align-items:flex-start">
+        <span class="step-pill" style="margin-top:4px">${pi+1}</span>
+        <textarea placeholder="Describí el paso..." style="flex:1;min-height:52px" onchange="window._sP(${pi},this.value)">${p}</textarea>
+        ${pasos.length>1?`<button class="btn btn-sm btn-danger" style="margin-top:4px" onclick="window._rP(${pi})">✕</button>`:''}
+      </div>`).join('');
+  }
+
+  function re() {
+    const ff = document.getElementById('form-fases');
+    const fp = document.getElementById('form-pasos');
+    if (ff) ff.innerHTML = renderFasesHTML();
+    if (fp) fp.innerHTML = renderPasosHTML();
+  }
+
+  window._fN = (fi,v) => { fases[fi].nombre=v; };
+  window._sI = (fi,ii,k,v) => { fases[fi].ingredientes[ii][k]=v; };
+  window._rI = (fi,ii) => { fases[fi].ingredientes.splice(ii,1); re(); };
+  window._aI = (fi) => { fases[fi].ingredientes.push({nombre:'',cantidad:'',porcentaje:'',unidad:'g'}); re(); };
+  window._rF = (fi) => { fases.splice(fi,1); re(); };
+  window._aF = () => { fases.push({nombre:'',ingredientes:[{nombre:'',cantidad:'',porcentaje:'',unidad:'g'}]}); re(); };
+  window._sP = (pi,v) => { pasos[pi]=v; };
+  window._rP = (pi) => { pasos.splice(pi,1); re(); };
+  window._aP = () => { pasos.push(''); re(); };
+
+  window._guardarReceta = () => {
+    const nombre = document.getElementById('f-nombre').value.trim();
+    if (!nombre) { alert('Ingresá el nombre de la receta'); return; }
+    const obj = {
+      id: es ? r.id : Date.now(),
+      nombre,
+      categoria:          document.getElementById('f-cat').value,
+      rendimiento:        document.getElementById('f-rinde').value,
+      unidad_rendimiento: document.getElementById('f-unidad').value,
+      notas:              document.getElementById('f-notas').value,
+      ultima_actualizacion: document.getElementById('f-fecha-act').value || null,
+      nota_actualizacion:   document.getElementById('f-nota-act').value.trim() || null,
+      fases,
+      pasos: pasos.filter(p=>p.trim())
+    };
+    if (es) { const i = db.recetas.findIndex(x=>x.id===r.id); db.recetas[i]=obj; }
+    else db.recetas.push(obj);
+    saveDB(); closeModal(); renderRecetas();
+  };
+
+  showModal(`
+    <div class="modal-title">${es?'Editar receta':'Nueva receta'}</div>
+    <div class="grid2">
+      <div><label>Nombre</label><input id="f-nombre" placeholder="Nombre del producto" value="${es?r.nombre:''}" /></div>
+      <div><label>Categoría</label><select id="f-cat">${CATEGORIAS.map(c=>`<option${es&&r.categoria===c?' selected':''}>${c}</option>`).join('')}</select></div>
+    </div>
+    <div class="grid2 mt12">
+      <div><label>Rinde</label><input id="f-rinde" placeholder="ej: 100" value="${es?r.rendimiento:''}" /></div>
+      <div><label>Unidad</label><select id="f-unidad">${UNIDADES.map(u=>`<option${es&&r.unidad_rendimiento===u?' selected':''}>${u}</option>`).join('')}</select></div>
+    </div>
+    <div style="border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-top:12px;background:var(--green-xpale)">
+      <div style="font-size:12px;font-weight:500;color:var(--green-mid);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em">Última actualización</div>
+      <div class="grid2">
+        <div><label>Fecha</label><input type="date" id="f-fecha-act" value="${es&&r.ultima_actualizacion?r.ultima_actualizacion:''}" /></div>
+        <div><label>Nota (opcional)</label><input id="f-nota-act" placeholder="ej: ajuste de fragancia" value="${es&&r.nota_actualizacion?r.nota_actualizacion:''}" /></div>
+      </div>
+    </div>
+    <hr class="divider">
+    <div style="font-weight:500;margin-bottom:8px">Fases e ingredientes</div>
+    <div id="form-fases">${renderFasesHTML()}</div>
+    <button class="btn btn-sm mt8" onclick="window._aF()">+ Agregar fase</button>
+    <hr class="divider">
+    <div style="font-weight:500;margin-bottom:8px">Procedimiento</div>
+    <div id="form-pasos">${renderPasosHTML()}</div>
+    <button class="btn btn-sm mt8" onclick="window._aP()">+ Agregar paso</button>
+    <hr class="divider">
+    <label>Notas / advertencias</label>
+    <textarea id="f-notas" placeholder="Notas importantes, advertencias, vida útil...">${es?r.notas:''}</textarea>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="window._guardarReceta()">Guardar receta</button>
+    </div>
+  `);
+}
+
+function eliminarReceta(id) {
+  if (!confirm('¿Eliminar esta receta?')) return;
+  db.recetas = db.recetas.filter(r => r.id !== id);
+  saveDB(); renderRecetas();
+}
+
+// ── IMPORTAR RECETAS ──────────────────────────────────────────────────────
+function importarRecetas() {
+  document.getElementById('import-recetas-input').value = '';
+  document.getElementById('import-recetas-input').click();
+}
+
+function procesarImportRecetas(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const raw = JSON.parse(e.target.result);
+      // Acepta array directo o { recetas: [...] }
+      const recetas = Array.isArray(raw) ? raw : (raw.recetas || null);
+      if (!recetas || !recetas.every(r => r.nombre && r.fases)) throw new Error('Formato inválido');
+
+      // Detectar duplicados por nombre
+      const nuevas  = recetas.filter(r => !db.recetas.find(x => x.nombre.toLowerCase() === r.nombre.toLowerCase()));
+      const duplic  = recetas.filter(r =>  db.recetas.find(x => x.nombre.toLowerCase() === r.nombre.toLowerCase()));
+
+      showModal(`
+        <div class="modal-title">Importar recetas</div>
+        <div class="flex mb12" style="gap:8px;flex-wrap:wrap">
+          <span class="badge badge-green">${recetas.length} receta${recetas.length>1?'s':''} en el archivo</span>
+          <span class="badge badge-gray">${nuevas.length} nueva${nuevas.length!==1?'s':''}</span>
+          ${duplic.length ? `<span class="badge badge-amber">${duplic.length} ya exist${duplic.length===1?'e':'en'}</span>` : ''}
+        </div>
+        ${duplic.length ? `
+          <div class="alert-banner mb12">
+            ⚠ Estas recetas ya existen: <strong>${duplic.map(r=>r.nombre).join(', ')}</strong>. Podés reemplazarlas o saltearlas.
+          </div>` : ''}
+        <div class="card" style="padding:0;overflow:hidden;margin-bottom:12px">
+          <table class="data-table" style="font-size:12px">
+            <thead><tr><th>Receta</th><th>Categoría</th><th>Rinde</th><th>Estado</th></tr></thead>
+            <tbody>
+            ${recetas.map(r => {
+              const existe = db.recetas.find(x => x.nombre.toLowerCase() === r.nombre.toLowerCase());
+              return `<tr>
+                <td style="font-weight:500">${r.nombre}</td>
+                <td>${r.categoria||'—'}</td>
+                <td>${r.rendimiento||'—'} ${r.unidad_rendimiento||''}</td>
+                <td><span class="badge ${existe?'badge-amber':'badge-green'}">${existe?'Ya existe':'Nueva'}</span></td>
+              </tr>`;
+            }).join('')}
+            </tbody>
+          </table>
+        </div>
+        ${duplic.length ? `
+          <div style="font-size:13px;margin-bottom:12px;color:var(--text-mid)">¿Qué hacer con las recetas duplicadas?</div>
+          <div class="flex" style="gap:8px;margin-bottom:4px">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px">
+              <input type="radio" name="dup-mode" value="saltar" checked /> Saltar (mantener las existentes)
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px">
+              <input type="radio" name="dup-mode" value="reemplazar" /> Reemplazar con las del archivo
+            </label>
+          </div>` : ''}
+        <div class="modal-footer">
+          <button class="btn" onclick="closeModal()">Cancelar</button>
+          <button class="btn btn-primary" onclick="confirmarImportRecetas('${encodeURIComponent(JSON.stringify(recetas))}')">Importar</button>
+        </div>
+      `);
+    } catch(err) {
+      showModal(`
+        <div class="modal-title">Formato inválido</div>
+        <p style="font-size:13px;color:var(--text-mid);margin-bottom:8px">
+          El archivo no tiene el formato correcto. Pedile a Claude que genere un archivo JSON de recetas con este formato:
+        </p>
+        <pre style="background:var(--green-xpale);border-radius:var(--radius);padding:12px;font-size:11px;overflow-x:auto">[
+  {
+    "nombre": "Nombre del producto",
+    "categoria": "Facial",
+    "rendimiento": "100",
+    "unidad_rendimiento": "g",
+    "ultima_actualizacion": "2026-03-29",
+    "nota_actualizacion": "versión inicial",
+    "notas": "Advertencias...",
+    "fases": [
+      {
+        "nombre": "Fase Acuosa",
+        "ingredientes": [
+          { "nombre": "Agua destilada", "cantidad": "70", "porcentaje": "70", "unidad": "g" }
+        ]
+      }
+    ],
+    "pasos": ["Paso 1...", "Paso 2..."]
+  }
+]</pre>
+        <div class="modal-footer"><button class="btn btn-primary" onclick="closeModal()">Entendido</button></div>
+      `);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function confirmarImportRecetas(encoded) {
+  const recetas = JSON.parse(decodeURIComponent(encoded));
+  const modeEl  = document.querySelector('input[name="dup-mode"]:checked');
+  const mode    = modeEl ? modeEl.value : 'saltar';
+  let importadas = 0;
+  recetas.forEach(r => {
+    const existeIdx = db.recetas.findIndex(x => x.nombre.toLowerCase() === r.nombre.toLowerCase());
+    if (existeIdx >= 0) {
+      if (mode === 'reemplazar') {
+        db.recetas[existeIdx] = { ...r, id: db.recetas[existeIdx].id };
+        importadas++;
+      }
+      // saltar: no hacer nada
+    } else {
+      db.recetas.push({ ...r, id: Date.now() + importadas });
+      importadas++;
+    }
+  });
+  saveDB(); closeModal(); renderRecetas();
+  showToast(`${importadas} receta${importadas!==1?'s':''} importada${importadas!==1?'s':''} ✓`);
+}
+
+function prepararReceta(id) {
+  const r = db.recetas.find(x => x.id === id);
+  if (!r) return;
+
+  // Precalcular descuentos para mostrar en pantalla
+  function calcDescuentos(mult) {
+    const out = [];
+    r.fases.forEach(f => f.ingredientes.forEach(i => {
+      const cant = parseFloat(i.cantidad);
+      if (!cant) return;
+      const match = db.stock.find(s => s.nombre.toLowerCase() === i.nombre.toLowerCase());
+      if (match) out.push({ stock: match, necesita: +(cant * mult).toFixed(4), unidad: i.unidad });
+    }));
+    return out;
+  }
+
+  // Cantidad producida = rendimiento * multiplicador
+  const rinde     = parseFloat(r.rendimiento) || 1;
+  const unidadR   = r.unidad_rendimiento || 'g';
+
+  window._confirmarPreparar = () => {
+    const mult      = parseFloat(document.getElementById('prep-mult').value) || 0;
+    const lote      = document.getElementById('prep-lote').value.trim();
+    const fechaFab  = document.getElementById('prep-fecha-fab').value;
+    const fechaVenc = document.getElementById('prep-fecha-venc').value || null;
+    const comentarios = document.getElementById('prep-comentarios').value.trim();
+    if (mult <= 0) { alert('Ingresá un multiplicador válido'); return; }
+    if (!fechaFab) { alert('Ingresá la fecha de fabricación'); return; }
+
+    const cantProd  = +(rinde * mult).toFixed(4);
+    const descuentos = calcDescuentos(mult);
+
+    // 1) Descontar del stock de ingredientes
+    descuentos.forEach(d => {
+      d.stock.cantidad = Math.max(0, Math.round((d.stock.cantidad - d.necesita) * 10000) / 10000);
+    });
+
+    // 2) Agregar lote a producción
+    if (!db.produccion) db.produccion = [];
+    db.produccion.push({
+      id:               Date.now(),
+      receta_id:        r.id,
+      nombre_receta:    r.nombre,
+      lote:             lote,
+      cantidad:         String(cantProd),
+      cantidad_num:     cantProd,
+      vendidos:         0,
+      unidad:           unidadR,
+      fecha_fabricacion: fechaFab,
+      fecha_vencimiento: fechaVenc,
+      estado:           'disponible',
+      comentarios:      comentarios
+    });
+
+    saveDB();
+    closeModal();
+    showToast(`"${r.nombre}" preparado ✓ — ${cantProd} ${unidadR} agregados a Producción`);
+    showView('produccion');
+  };
+
+  // Actualizar tabla de descuentos en tiempo real
+  window._actualizarDescuentosPrev = () => {
+    const mult = parseFloat(document.getElementById('prep-mult').value) || 0;
+    const cantProd = +(rinde * mult).toFixed(2);
+    const el = document.getElementById('prep-cant-preview');
+    if (el) el.textContent = `Cantidad a producir: ${cantProd} ${unidadR}`;
+    const desc = calcDescuentos(mult);
+    const tbody = document.getElementById('prep-desc-tbody');
+    if (!tbody) return;
+    const hayProblema = desc.some(d => d.stock.cantidad < d.necesita);
+    tbody.innerHTML = desc.length
+      ? desc.map(d => {
+          const ok = d.stock.cantidad >= d.necesita;
+          return `<tr>
+            <td>${d.stock.nombre}</td>
+            <td>${d.necesita.toFixed(2)} ${d.unidad}</td>
+            <td>${d.stock.cantidad} ${d.stock.unidad}</td>
+            <td><span class="badge ${ok?'badge-green':'badge-red'}">${ok?'OK':'Falta'}</span></td>
+          </tr>`;
+        }).join('')
+      : `<tr><td colspan="4" style="color:var(--text-light);text-align:center;padding:12px">Sin coincidencias en stock</td></tr>`;
+    const warn = document.getElementById('prep-warn');
+    if (warn) warn.style.display = hayProblema ? 'flex' : 'none';
+  };
+
+  showModal(`
+    <div class="modal-title">Preparar: ${r.nombre}</div>
+    <div style="background:var(--green-xpale);border-radius:var(--radius);padding:12px;margin-bottom:16px">
+      <div style="font-size:12px;color:var(--text-mid);margin-bottom:8px">Esta fórmula rinde <strong>${r.rendimiento} ${unidadR}</strong> por preparación</div>
+      <div class="grid2">
+        <div>
+          <label>Multiplicador de lote</label>
+          <input type="number" id="prep-mult" min="0.1" step="0.1" value="1" placeholder="ej: 1, 2, 0.5"
+            oninput="window._actualizarDescuentosPrev()" />
+        </div>
+        <div style="display:flex;align-items:flex-end;padding-bottom:2px">
+          <div id="prep-cant-preview" style="font-size:14px;font-weight:500;color:var(--green-deep)">Cantidad a producir: ${rinde} ${unidadR}</div>
+        </div>
+      </div>
+    </div>
+    <div class="grid3 mt12">
+      <div><label>N° de lote (opcional)</label><input id="prep-lote" placeholder="ej: L-001" /></div>
+      <div><label>Fecha de fabricación</label><input type="date" id="prep-fecha-fab" value="${hoy()}" /></div>
+      <div><label>Fecha de vencimiento</label><input type="date" id="prep-fecha-venc" /></div>
+    </div>
+    <div class="mt12"><label>Comentarios (opcional)</label>
+      <textarea id="prep-comentarios" placeholder="Notas de esta preparación..." style="min-height:52px"></textarea>
+    </div>
+    <div style="margin-top:16px">
+      <div style="font-size:12px;font-weight:500;color:var(--text-mid);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Ingredientes a descontar del stock</div>
+      <div class="card" style="padding:0;overflow:hidden">
+        <table class="data-table" style="font-size:12px">
+          <thead><tr><th>Ingrediente</th><th>Necesitás</th><th>Disponible</th><th>Estado</th></tr></thead>
+          <tbody id="prep-desc-tbody">
+            ${(() => {
+              const d1 = calcDescuentos(1);
+              return d1.length
+                ? d1.map(d=>`<tr>
+                    <td>${d.stock.nombre}</td>
+                    <td>${d.necesita.toFixed(2)} ${d.unidad}</td>
+                    <td>${d.stock.cantidad} ${d.stock.unidad}</td>
+                    <td><span class="badge ${d.stock.cantidad>=d.necesita?'badge-green':'badge-red'}">${d.stock.cantidad>=d.necesita?'OK':'Falta'}</span></td>
+                  </tr>`).join('')
+                : `<tr><td colspan="4" style="color:var(--text-light);text-align:center;padding:12px">Sin coincidencias en stock</td></tr>`;
+            })()}
+          </tbody>
+        </table>
+      </div>
+      <div id="prep-warn" class="alert-banner mt12" style="display:${calcDescuentos(1).some(d=>d.stock.cantidad<d.necesita)?'flex':'none'}">
+        ⚠ Algunos ingredientes no tienen stock suficiente.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-gold" onclick="window._confirmarPreparar()">Confirmar preparación</button>
+    </div>
+  `);
+}
+
+function seleccionarYPreparar() {
+  showModal(`
+    <div class="modal-title">Preparar fórmula</div>
+    <label>Seleccioná la receta a preparar</label>
+    <select id="sel-prep-receta" style="margin-bottom:16px">
+      <option value="">—</option>
+      ${db.recetas.map(r=>`<option value="${r.id}">${r.nombre}</option>`).join('')}
+    </select>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-gold" onclick="(() => { const id=parseInt(document.getElementById('sel-prep-receta').value); if(!id){alert('Seleccioná una receta');return;} closeModal(); prepararReceta(id); })()">Continuar</button>
+    </div>
+  `);
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────
+function precioActual(ing) {
+  if (!ing) return null;
+  if (ing.precio_actual) return ing.precio_actual;
+  if (ing.historial_precios && ing.historial_precios.length)
+    return ing.historial_precios[ing.historial_precios.length - 1];
+  return null;
+}
+function fmt$(n) { return n == null ? '—' : '$' + parseFloat(n).toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+function hoy() { return new Date().toISOString().slice(0,10); }
+
+// ── STOCK ─────────────────────────────────────────────────────────────────
+let stockSort = { col: 'nombre', dir: 'asc' };
+
+function setSort(col) {
+  if (stockSort.col === col) {
+    stockSort.dir = stockSort.dir === 'asc' ? 'desc' : 'asc';
+  } else {
+    stockSort.col = col; stockSort.dir = 'asc';
+  }
+  renderStock();
+}
+
+function vencimientoBadge(venc) {
+  if (!venc) return '';
+  const hoyMs = new Date().setHours(0,0,0,0);
+  const vMs   = new Date(venc).getTime();
+  const dias  = Math.round((vMs - hoyMs) / 86400000);
+  if (dias < 0)   return `<span class="badge badge-venc-exp">Vencido ${Math.abs(dias)}d</span>`;
+  if (dias <= 30) return `<span class="badge badge-venc-warn">Vence en ${dias}d</span>`;
+  return `<span class="badge badge-venc-ok">Vence ${venc}</span>`;
+}
+
+function renderStock() {
+  // Populate category filter
+  const catSel = document.getElementById('stock-cat-filter');
+  if (catSel) {
+    const cur = catSel.value;
+    const cats = [...new Set(db.stock.map(s => s.categoria).filter(Boolean))].sort();
+    catSel.innerHTML = '<option value="">Todas las categorías</option>' +
+      cats.map(c => `<option value="${c}"${cur===c?' selected':''}>${c}</option>`).join('');
+  }
+
+  const q      = (document.getElementById('stock-search')||{}).value||'';
+  const catF   = (document.getElementById('stock-cat-filter')||{}).value||'';
+  const alertas = db.stock.filter(s => s.cantidad <= s.minimo);
+
+  // Filter
+  let lista = db.stock.filter(s =>
+    (!q || s.nombre.toLowerCase().includes(q.toLowerCase())) &&
+    (!catF || s.categoria === catF)
+  );
+
+  // Sort
+  lista = [...lista].sort((a, b) => {
+    let va, vb;
+    if (stockSort.col === 'nombre')   { va = a.nombre.toLowerCase(); vb = b.nombre.toLowerCase(); }
+    else if (stockSort.col === 'cat') { va = (a.categoria||'').toLowerCase(); vb = (b.categoria||'').toLowerCase(); }
+    else if (stockSort.col === 'cant'){ va = a.cantidad; vb = b.cantidad; }
+    else if (stockSort.col === 'precio') {
+      va = precioActual(a)?.precio_por_unidad ?? -1;
+      vb = precioActual(b)?.precio_por_unidad ?? -1;
+    }
+    else if (stockSort.col === 'venc') {
+      va = a.vencimiento || 'z'; vb = b.vencimiento || 'z';
+    }
+    else if (stockSort.col === 'estado') {
+      const rank = s => s.cantidad <= 0 ? 0 : s.cantidad <= s.minimo ? 1 : 2;
+      va = rank(a); vb = rank(b);
+    }
+    if (va < vb) return stockSort.dir === 'asc' ? -1 : 1;
+    if (va > vb) return stockSort.dir === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  function thSort(col, label) {
+    const active = stockSort.col === col;
+    const cls = active ? stockSort.dir : '';
+    return `<th class="sortable ${cls}" onclick="setSort('${col}')">${label}<span class="sort-arrow"></span></th>`;
+  }
+
+  const cont = document.getElementById('stock-content');
+  cont.innerHTML = `
+    ${alertas.length ? `<div class="alert-banner">⚠ ${alertas.length} ingrediente${alertas.length>1?'s bajos o agotados':'bajo o agotado'}: ${alertas.map(a=>a.nombre).join(', ')}</div>` : ''}
+    <div class="card" style="padding:0;overflow:hidden">
+      <table class="data-table">
+        <thead><tr>
+          ${thSort('nombre','Ingrediente')}
+          ${thSort('cat','Categoría')}
+          ${thSort('cant','Disponible')}
+          ${thSort('precio','Precio/unidad')}
+          <th>Últ. compra</th>
+          ${thSort('venc','Vencimiento')}
+          ${thSort('estado','Estado')}
+          <th style="text-align:right">Acciones</th>
+        </tr></thead>
+        <tbody>
+        ${lista.length === 0
+          ? `<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--text-light)">Sin resultados</td></tr>`
+          : lista.map(s => {
+            const pct    = Math.min(100, Math.round((s.cantidad / Math.max(s.cantidad, s.minimo * 2)) * 100));
+            const estado  = s.cantidad <= 0 ? 'badge-red' : s.cantidad <= s.minimo ? 'badge-amber' : 'badge-green';
+            const label   = s.cantidad <= 0 ? 'Agotado' : s.cantidad <= s.minimo ? 'Bajo' : 'OK';
+            const color   = s.cantidad <= 0 ? '#b03030' : s.cantidad <= s.minimo ? '#c07820' : 'var(--green-mid)';
+            const pc      = precioActual(s);
+            const vencBdg = vencimientoBadge(s.vencimiento);
+            return `<tr>
+              <td style="font-weight:500">${s.nombre}</td>
+              <td><span class="badge badge-gray">${s.categoria||'—'}</span></td>
+              <td>
+                <div>${s.cantidad} ${s.unidad}</div>
+                <div class="progress-wrap" style="width:80px">
+                  <div class="progress-fill" style="width:${pct}%;background:${color}"></div>
+                </div>
+              </td>
+              <td style="color:var(--green-deep);font-weight:500">${pc ? fmt$(pc.precio_por_unidad)+' / '+s.unidad : '<span style="color:var(--text-light);font-size:12px">Sin precio</span>'}</td>
+              <td style="color:var(--text-mid);font-size:12px">${pc ? `${pc.fecha}<br><span style="color:var(--text-light)">${pc.proveedor||'—'}</span>` : '—'}</td>
+              <td>${vencBdg || '<span style="color:var(--text-light);font-size:12px">—</span>'}</td>
+              <td><span class="badge ${estado}">${label}</span></td>
+              <td><div class="actions">
+                <button class="btn btn-sm" style="color:var(--green-mid);border-color:var(--green-mid)" onclick="registrarPrecio(${s.id})">$ Precio</button>
+                <button class="btn btn-sm btn-gold" onclick="reponerIngrediente(${s.id})">Reponer</button>
+                <button class="btn btn-sm" onclick="openFormIngrediente(db.stock.find(x=>x.id===${s.id}))">Editar</button>
+                <button class="btn btn-sm btn-danger" onclick="eliminarIngrediente(${s.id})">✕</button>
+              </div></td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function registrarPrecio(id) {
+  const s = db.stock.find(x => x.id === id);
+  if (!s) return;
+  if (!s.historial_precios) s.historial_precios = [];
+  const pc = precioActual(s);
+  showModal(`
+    <div class="modal-title">Registrar precio — ${s.nombre}</div>
+    <div class="grid2">
+      <div><label>Fecha</label><input type="date" id="pp-fecha" value="${hoy()}" /></div>
+      <div><label>Proveedor</label><input id="pp-prov" placeholder="Nombre del proveedor" value="${pc ? pc.proveedor||'' : ''}" /></div>
+    </div>
+    <div class="grid2 mt12">
+      <div><label>Cantidad comprada (${s.unidad})</label><input type="number" min="0" step="0.01" id="pp-cant" placeholder="ej: 500" /></div>
+      <div><label>Precio total pagado ($)</label><input type="number" min="0" step="0.01" id="pp-total" placeholder="ej: 2500" /></div>
+    </div>
+    <div class="mt12" style="background:var(--green-xpale);border-radius:var(--radius);padding:12px">
+      <div style="font-size:12px;color:var(--text-mid);margin-bottom:4px">Precio por ${s.unidad} calculado:</div>
+      <div id="pp-resultado" style="font-size:20px;font-weight:500;color:var(--green-deep)">—</div>
+    </div>
+    ${s.historial_precios.length ? `
+      <div style="margin-top:16px">
+        <div style="font-size:12px;font-weight:500;color:var(--text-mid);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Historial de precios</div>
+        <table class="data-table" style="font-size:12px">
+          <thead><tr><th>Fecha</th><th>Proveedor</th><th>Precio / ${s.unidad}</th></tr></thead>
+          <tbody>
+          ${[...s.historial_precios].reverse().slice(0,5).map(p=>`
+            <tr><td>${p.fecha}</td><td>${p.proveedor||'—'}</td><td style="font-weight:500">${fmt$(p.precio_por_unidad)}</td></tr>
+          `).join('')}
+          </tbody>
+        </table>
+      </div>` : ''}
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarPrecio(${id})">Guardar precio</button>
+    </div>
+  `);
+  ['pp-cant','pp-total'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => {
+      const c = parseFloat(document.getElementById('pp-cant').value);
+      const t = parseFloat(document.getElementById('pp-total').value);
+      document.getElementById('pp-resultado').textContent = (c && t) ? fmt$(t/c) + ' / ' + s.unidad : '—';
+    });
+  });
+}
+
+function guardarPrecio(id) {
+  const s    = db.stock.find(x => x.id === id);
+  const cant = parseFloat(document.getElementById('pp-cant').value);
+  const total= parseFloat(document.getElementById('pp-total').value);
+  const fecha= document.getElementById('pp-fecha').value;
+  const prov = document.getElementById('pp-prov').value.trim();
+  if (!cant || !total || !fecha) { alert('Completá cantidad, precio total y fecha.'); return; }
+  if (!s.historial_precios) s.historial_precios = [];
+  const entrada = { fecha, proveedor: prov, cantidad_comprada: cant, precio_total: total, precio_por_unidad: Math.round((total/cant)*10000)/10000 };
+  s.historial_precios.push(entrada);
+  s.precio_actual = entrada;
+  saveDB(); closeModal(); renderStock();
+  showToast(`Precio actualizado: ${fmt$(entrada.precio_por_unidad)} / ${s.unidad} ✓`);
+}
+
+function openFormIngrediente(ing) {
+  const es = !!ing;
+  window._guardarIng = () => {
+    const nombre = document.getElementById('si-nombre').value.trim();
+    if (!nombre) return;
+    const obj = {
+      id: es ? ing.id : Date.now(),
+      nombre,
+      cantidad:    parseFloat(document.getElementById('si-cant').value) || 0,
+      unidad:      document.getElementById('si-unidad').value,
+      minimo:      parseFloat(document.getElementById('si-min').value) || 10,
+      categoria:   document.getElementById('si-cat').value,
+      vencimiento: document.getElementById('si-venc').value || null,
+      precio_actual:      es ? (ing.precio_actual || null) : null,
+      historial_precios:  es ? (ing.historial_precios || []) : []
+    };
+    if (es) { const i = db.stock.findIndex(x=>x.id===ing.id); db.stock[i]=obj; }
+    else db.stock.push(obj);
+    saveDB(); closeModal(); renderStock();
+  };
+
+  // Vencimiento badge preview
+  const vencActual = es && ing.vencimiento ? ing.vencimiento : '';
+
+  showModal(`
+    <div class="modal-title">${es?'Editar ingrediente':'Nuevo ingrediente'}</div>
+    <label>Nombre</label>
+    <input id="si-nombre" value="${es?ing.nombre:''}" placeholder="Nombre del ingrediente" />
+    <div class="grid3 mt12">
+      <div><label>Cantidad actual</label><input id="si-cant" type="number" min="0" step="0.1" value="${es?ing.cantidad:''}" placeholder="0" /></div>
+      <div><label>Unidad</label><select id="si-unidad">${UNIDADES.map(u=>`<option${es&&ing.unidad===u?' selected':''}>${u}</option>`).join('')}</select></div>
+      <div><label>Mínimo (alerta)</label><input id="si-min" type="number" min="0" value="${es?ing.minimo:'10'}" placeholder="10" /></div>
+    </div>
+    <div class="grid2 mt12">
+      <div><label>Categoría</label>
+        <select id="si-cat">${CATS_ING.map(c=>`<option${es&&ing.categoria===c?' selected':''}>${c}</option>`).join('')}</select>
+      </div>
+      <div>
+        <label>Fecha de vencimiento</label>
+        <input type="date" id="si-venc" value="${vencActual}" />
+        <div id="si-venc-preview" style="margin-top:4px;min-height:20px;font-size:12px"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="window._guardarIng()">Guardar</button>
+    </div>
+  `);
+
+  // Live vencimiento preview
+  const vencInput = document.getElementById('si-venc');
+  const vencPreview = document.getElementById('si-venc-preview');
+  function updateVencPreview() {
+    vencPreview.innerHTML = vencInput.value ? vencimientoBadge(vencInput.value) : '';
+  }
+  vencInput.addEventListener('change', updateVencPreview);
+  if (vencActual) updateVencPreview();
+}
+
+function reponerIngrediente(id) {
+  const s = db.stock.find(x => x.id === id);
+  if (!s) return;
+  const cant = parseFloat(prompt(`Reponer "${s.nombre}"\nStock actual: ${s.cantidad} ${s.unidad}\n\n¿Cuánto añadís?`));
+  if (!cant || isNaN(cant)) return;
+  s.cantidad = Math.round((s.cantidad + cant) * 100) / 100;
+  saveDB(); renderStock();
+}
+
+function eliminarIngrediente(id) {
+  if (!confirm('¿Eliminar este ingrediente?')) return;
+  db.stock = db.stock.filter(x => x.id !== id);
+  saveDB(); renderStock();
+}
+
+// ── COSTOS ────────────────────────────────────────────────────────────────
+function initCostos() {
+  const sel = document.getElementById('costos-receta-sel');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">Seleccioná una receta...</option>' +
+    db.recetas.map(r => `<option value="${r.id}"${cur==r.id?' selected':''}>${r.nombre}</option>`).join('');
+  renderCostos();
+}
+
+function renderCostos() {
+  const id  = parseInt(document.getElementById('costos-receta-sel').value);
+  const cont = document.getElementById('costos-content');
+  if (!id) {
+    cont.innerHTML = `<div class="empty-state"><div class="empty-icon" style="font-size:32px;margin-bottom:8px">$</div><p>Seleccioná una receta para ver su estructura de costos.</p></div>`;
+    return;
+  }
+  const r = db.recetas.find(x => x.id === id);
+  if (!r) return;
+
+  let totalCosto = 0;
+  let sinPrecio  = 0;
+  const filas = [];
+
+  r.fases.forEach(f => {
+    f.ingredientes.forEach(i => {
+      const cant = parseFloat(i.cantidad);
+      const stockIng = db.stock.find(s => s.nombre.toLowerCase() === i.nombre.toLowerCase());
+      const pc = stockIng ? precioActual(stockIng) : null;
+      let costoLinea = null;
+      if (pc && cant) {
+        costoLinea = cant * pc.precio_por_unidad;
+        totalCosto += costoLinea;
+      } else if (cant) {
+        sinPrecio++;
+      }
+      filas.push({ fase: f.nombre, nombre: i.nombre, cantidad: i.cantidad, unidad: i.unidad, porcentaje: i.porcentaje, precio_unidad: pc ? pc.precio_por_unidad : null, costo: costoLinea, proveedor: pc ? pc.proveedor : null, fecha_precio: pc ? pc.fecha : null });
+    });
+  });
+
+  const rinde    = parseFloat(r.rendimiento) || 1;
+  const costoPorUnidad = totalCosto / rinde;
+  const tieneCostos = totalCosto > 0;
+
+  let faseActual = '';
+  const filasHTML = filas.map(fi => {
+    let faseHdr = '';
+    if (fi.fase !== faseActual) { faseActual = fi.fase; faseHdr = `<tr><td colspan="6" style="padding:8px 14px 4px;background:var(--green-xpale)"><span style="font-size:11px;font-weight:500;color:var(--green-mid);text-transform:uppercase;letter-spacing:.07em">${fi.fase}</span></td></tr>`; }
+    const pct = tieneCostos && fi.costo ? Math.round(fi.costo/totalCosto*100) : null;
+    return faseHdr + `<tr>
+      <td>${fi.nombre}</td>
+      <td style="color:var(--text-mid)">${fi.cantidad} ${fi.unidad}</td>
+      <td style="color:var(--text-mid)">${fi.porcentaje && fi.porcentaje!=='—' ? fi.porcentaje+'%' : '—'}</td>
+      <td style="color:var(--green-deep)">${fi.precio_unidad ? fmt$(fi.precio_unidad)+'/'+fi.unidad : '<span style="color:var(--text-light);font-size:12px">Sin precio</span>'}</td>
+      <td style="font-weight:${fi.costo?'500':'400'};color:${fi.costo?'var(--text)':'var(--text-light)'}">${fi.costo ? fmt$(fi.costo) : '—'}</td>
+      <td>${pct != null ? `<div style="display:flex;align-items:center;gap:6px"><div class="progress-wrap" style="flex:1;width:60px"><div class="progress-fill" style="width:${pct}%;background:var(--green-mid)"></div></div><span style="font-size:11px;color:var(--text-mid)">${pct}%</span></div>` : ''}</td>
+    </tr>`;
+  }).join('');
+
+  cont.innerHTML = `
+    <div class="grid3 mb12" style="grid-template-columns:1fr 1fr 1fr">
+      <div class="stat-card">
+        <div class="stat-num">${tieneCostos ? fmt$(totalCosto) : '—'}</div>
+        <div class="stat-lbl">Costo total (${r.rendimiento} ${r.unidad_rendimiento})</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">${tieneCostos ? fmt$(costoPorUnidad) : '—'}</div>
+        <div class="stat-lbl">Costo por ${r.unidad_rendimiento}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="color:${sinPrecio?'var(--amber)':'var(--green-deep)'}">${sinPrecio}</div>
+        <div class="stat-lbl">Ingredientes sin precio</div>
+      </div>
+    </div>
+    ${sinPrecio ? `<div class="alert-banner mb12">⚠ ${sinPrecio} ingrediente${sinPrecio>1?'s':''}  no tienen precio cargado. El costo total está incompleto. Andá a Stock → botón "$ Precio" para actualizarlos.</div>` : ''}
+    <div class="card" style="padding:0;overflow:hidden">
+      <table class="data-table">
+        <thead><tr>
+          <th>Ingrediente</th><th>Cantidad</th><th>% en fórmula</th><th>Precio unitario</th><th>Costo</th><th>Peso en costo</th>
+        </tr></thead>
+        <tbody>${filasHTML}</tbody>
+        <tfoot>
+          <tr style="background:var(--green-xpale)">
+            <td colspan="4" style="font-weight:500;padding:12px 14px">Total</td>
+            <td style="font-weight:500;color:var(--green-deep);font-size:15px">${tieneCostos ? fmt$(totalCosto) : '—'}</td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>`;
+}
+
+// ── FACTURA IMPORT ────────────────────────────────────────────────────────
+function importarDesdeFactura() {
+  const input = document.createElement('input');
+  input.type = 'file'; input.accept = '.json';
+  input.onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const raw = JSON.parse(ev.target.result);
+        // Acepta tanto objeto único como array de compras
+        const compras = Array.isArray(raw) ? raw : [raw];
+        if (!compras.every(c => Array.isArray(c.items))) throw new Error('Formato inválido');
+        mostrarVistaFacturas(compras);
+      } catch(err) {
+        showModal(`<div class="modal-title">Error</div><p style="font-size:13px;color:var(--text-mid);margin-bottom:20px">El archivo no es un JSON de factura válido generado por Claude.</p><div class="modal-footer"><button class="btn btn-primary" onclick="closeModal()">Ok</button></div>`);
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+function mostrarVistaFacturas(compras) {
+  // Aplanar ítems preservando el índice de compra (no fecha/proveedor que pueden coincidir)
+  let allChecks = [];
+  compras.forEach((compra, ci) => {
+    compra.items.forEach(item => {
+      const match = db.stock.find(s => s.nombre.toLowerCase() === item.nombre.toLowerCase());
+      allChecks.push({
+        ...item,
+        compraIdx: ci,
+        fecha: compra.fecha || hoy(),
+        proveedor: compra.proveedor || '',
+        match: match ? match.id : null,
+        agregarAlStock: false
+      });
+    });
+  });
+
+  function buildRows() {
+    let html = '';
+    compras.forEach((compra, gi) => {
+      const itemsDeEstaCompra = allChecks.filter(c => c.compraIdx === gi);
+      html += `<tr style="background:var(--green-xpale)">
+        <td colspan="6" style="padding:7px 14px">
+          <span style="font-size:11px;font-weight:500;color:var(--green-mid);text-transform:uppercase;letter-spacing:.07em">
+            Compra ${gi+1} — ${compra.fecha||hoy()}${compra.proveedor?' · '+compra.proveedor:''}
+          </span>
+          <span style="font-size:11px;color:var(--text-light);margin-left:8px">${itemsDeEstaCompra.length} ítems</span>
+        </td>
+      </tr>`;
+      itemsDeEstaCompra.forEach(c => {
+        const globalIdx = allChecks.indexOf(c);
+        const stockOpts = '<option value="">— no vincular —</option>' +
+          db.stock.map(s => `<option value="${s.id}"${c.match===s.id?' selected':''}>${s.nombre}</option>`).join('');
+        const yaEnStock = !!c.match;
+        html += `<tr id="frow-${globalIdx}">
+          <td style="font-weight:500;font-size:12px">${c.nombre}</td>
+          <td style="font-size:12px;white-space:nowrap">${c.cantidad} ${c.unidad}</td>
+          <td style="font-size:12px">$${parseFloat(c.precio_total).toLocaleString('es-AR',{minimumFractionDigits:2})}</td>
+          <td style="color:var(--green-deep);font-weight:500;font-size:12px;white-space:nowrap">${fmt$(c.precio_total/c.cantidad)}/${c.unidad}</td>
+          <td>
+            <select style="font-size:11px;padding:3px 6px;width:100%" onchange="
+              window._allChecks[${globalIdx}].match=this.value?parseInt(this.value):null;
+              window._allChecks[${globalIdx}].agregarAlStock=false;
+              document.getElementById('fadd-${globalIdx}').style.display=this.value?'none':'inline-flex';
+            ">${stockOpts}</select>
+          </td>
+          <td>
+            <button id="fadd-${globalIdx}" class="btn btn-sm" style="font-size:11px;white-space:nowrap;display:${yaEnStock?'none':'inline-flex'};color:var(--green-mid);border-color:var(--green-mid)"
+              onclick="agregarNuevoDesdeFactura(${globalIdx})">
+              + Stock
+            </button>
+          </td>
+        </tr>`;
+      });
+    });
+    return html;
+  }
+
+  window._allChecks = allChecks;
+
+  window.agregarNuevoDesdeFactura = (idx) => {
+    const c = window._allChecks[idx];
+    // Mini-modal dentro del modal para definir el ingrediente nuevo
+    const miniId = 'mini-' + idx;
+    const existingMini = document.getElementById(miniId);
+    if (existingMini) { existingMini.remove(); return; }
+    const row = document.getElementById('frow-' + idx);
+    const mini = document.createElement('tr');
+    mini.id = miniId;
+    mini.innerHTML = `<td colspan="6" style="background:var(--gold-pale);padding:10px 14px">
+      <div style="font-size:12px;font-weight:500;margin-bottom:8px;color:var(--gold)">Agregar "${c.nombre}" al stock</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:6px;align-items:end">
+        <div><label style="font-size:11px">Nombre en stock</label><input id="fn-${idx}" value="${c.nombre}" style="font-size:12px"/></div>
+        <div><label style="font-size:11px">Cantidad inicial</label><input id="fc-${idx}" type="number" value="${c.cantidad}" style="font-size:12px"/></div>
+        <div><label style="font-size:11px">Mínimo (alerta)</label><input id="fm-${idx}" type="number" value="${Math.round(c.cantidad*0.2)}" style="font-size:12px"/></div>
+        <div><label style="font-size:11px">Categoría</label>
+          <select id="fcat-${idx}" style="font-size:12px">${CATS_ING.map(cat=>`<option>${cat}</option>`).join('')}</select>
+        </div>
+        <button class="btn btn-sm btn-primary" style="font-size:11px" onclick="confirmarAgregarDesdeFactura(${idx})">Agregar</button>
+      </div>
+    </td>`;
+    row.after(mini);
+  };
+
+  window.confirmarAgregarDesdeFactura = (idx) => {
+    const c      = window._allChecks[idx];
+    const nombre = document.getElementById('fn-'+idx).value.trim();
+    const cant   = parseFloat(document.getElementById('fc-'+idx).value) || 0;
+    const min    = parseFloat(document.getElementById('fm-'+idx).value) || 0;
+    const cat    = document.getElementById('fcat-'+idx).value;
+    if (!nombre) return;
+    const newIng = {
+      id: Date.now() + idx,
+      nombre, cantidad: cant, unidad: c.unidad,
+      minimo: min, categoria: cat,
+      precio_actual: null, historial_precios: []
+    };
+    db.stock.push(newIng);
+    // Vincular automáticamente este check al nuevo ingrediente
+    window._allChecks[idx].match = newIng.id;
+    window._allChecks[idx].agregarAlStock = true;
+    // Actualizar fila visual
+    const sel = document.querySelector(`#frow-${idx} select`);
+    const opt = document.createElement('option');
+    opt.value = newIng.id; opt.textContent = nombre; opt.selected = true;
+    sel.appendChild(opt);
+    document.getElementById('fadd-'+idx).style.display = 'none';
+    document.getElementById('mini-'+idx)?.remove();
+    // Actualizar badge contador
+    const vinc = window._allChecks.filter(x=>x.match).length;
+    const badgeVinc = document.getElementById('badge-vinculados');
+    if (badgeVinc) badgeVinc.textContent = vinc + ' vinculados';
+  };
+
+  window.confirmarFactura = () => {
+    let actualizados = 0;
+    window._allChecks.forEach(c => {
+      if (!c.match || !c.cantidad || !c.precio_total) return;
+      const s = db.stock.find(x => x.id === c.match);
+      if (!s) return;
+      if (!s.historial_precios) s.historial_precios = [];
+      const entrada = {
+        fecha: c.fecha,
+        proveedor: c.proveedor,
+        cantidad_comprada: c.cantidad,
+        precio_total: c.precio_total,
+        precio_por_unidad: Math.round((c.precio_total / c.cantidad) * 10000) / 10000
+      };
+      s.historial_precios.push(entrada);
+      s.precio_actual = entrada;
+      actualizados++;
+    });
+    saveDB(); closeModal();
+    showToast(`${actualizados} ingrediente${actualizados!==1?'s':''} actualizado${actualizados!==1?'s':''} ✓`);
+    showView('stock');
+  };
+
+  const totalItems = allChecks.length;
+  const vinculados = allChecks.filter(c => c.match).length;
+
+  showModal(`
+    <div class="modal-title">Importar compras</div>
+    <div class="flex mb12" style="gap:8px;flex-wrap:wrap">
+      <span class="badge badge-green">${compras.length} compra${compras.length>1?'s':''}</span>
+      <span class="badge badge-gray">${totalItems} ítems</span>
+      <span id="badge-vinculados" class="badge ${vinculados===totalItems?'badge-green':'badge-amber'}">${vinculados} vinculados</span>
+    </div>
+    <p style="font-size:12px;color:var(--text-mid);margin-bottom:10px">
+      Para cada ítem: vinculalo a un ingrediente existente en el menú desplegable, o usá <strong>+ Stock</strong> para crearlo nuevo ahora mismo.
+    </p>
+    <div style="border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;max-height:440px;overflow-y:auto">
+      <table class="data-table" style="table-layout:fixed;width:100%">
+        <thead><tr>
+          <th style="width:26%">Ítem de factura</th>
+          <th style="width:13%">Cant.</th>
+          <th style="width:14%">Precio total</th>
+          <th style="width:14%">Precio/unid.</th>
+          <th style="width:25%">Vincular a stock</th>
+          <th style="width:8%"></th>
+        </tr></thead>
+        <tbody id="factura-tbody">${buildRows()}</tbody>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmarFactura()">Confirmar e importar</button>
+    </div>
+  `);
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────
+function renderDashboard() {
+  const agotados  = db.stock.filter(s => s.cantidad <= 0).length;
+  const bajos     = db.stock.filter(s => s.cantidad > 0 && s.cantidad <= s.minimo).length;
+  const hoyMs     = new Date().setHours(0,0,0,0);
+  const vencidos  = db.stock.filter(s => s.vencimiento && new Date(s.vencimiento).getTime() < hoyMs);
+  const proxVenc  = db.stock.filter(s => s.vencimiento && (() => { const d = Math.round((new Date(s.vencimiento).getTime()-hoyMs)/86400000); return d>=0 && d<=60; })());
+  const cats = {};
+  db.recetas.forEach(r => { cats[r.categoria] = (cats[r.categoria]||0)+1; });
+
+  document.getElementById('dashboard-content').innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:12px">
+      <div class="stat-card"><div class="stat-num">${db.recetas.length}</div><div class="stat-lbl">Recetas</div></div>
+      <div class="stat-card"><div class="stat-num">${db.stock.length}</div><div class="stat-lbl">Ingredientes</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:${bajos?'var(--amber)':'var(--green-deep)'}">${bajos}</div><div class="stat-lbl">Stock bajo</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:${agotados?'var(--red)':'var(--green-deep)'}">${agotados}</div><div class="stat-lbl">Agotados</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:${vencidos.length?'var(--red)':proxVenc.length?'var(--amber)':'var(--green-deep)'}">${vencidos.length+proxVenc.length}</div><div class="stat-lbl">Vencimientos</div></div>
+    </div>
+    <div class="grid2">
+      <div>
+        <div class="card" style="margin-bottom:12px">
+          <div style="font-weight:500;margin-bottom:16px">Recetas por categoría</div>
+          ${Object.entries(cats).length===0?`<p style="color:var(--text-light);font-size:13px">Sin recetas.</p>`:
+            Object.entries(cats).map(([c,n]) => `
+            <div style="margin-bottom:12px">
+              <div class="flex-between" style="margin-bottom:4px">
+                <span style="font-size:13px">${c}</span>
+                <span style="font-size:13px;font-weight:500;color:var(--green-deep)">${n}</span>
+              </div>
+              <div class="progress-wrap">
+                <div class="progress-fill" style="width:${Math.round(n/db.recetas.length*100)}%;background:var(--green-mid)"></div>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:12px">
+          <div style="font-weight:500;margin-bottom:16px">Stock a reponer</div>
+          ${db.stock.filter(s=>s.cantidad<=s.minimo).length===0
+            ? `<p style="color:var(--text-light);font-size:13px">Todo el stock está en orden ✓</p>`
+            : db.stock.filter(s=>s.cantidad<=s.minimo).map(s=>`
+            <div class="flex-between" style="padding:8px 0;border-bottom:1px solid var(--border)">
+              <span style="font-size:13px">${s.nombre}</span>
+              <span class="badge ${s.cantidad<=0?'badge-red':'badge-amber'}">${s.cantidad<=0?'Agotado':'Bajo: '+s.cantidad+' '+s.unidad}</span>
+            </div>`).join('')}
+        </div>
+        ${(vencidos.length+proxVenc.length)>0 ? `
+        <div class="card">
+          <div style="font-weight:500;margin-bottom:16px">Vencimientos</div>
+          ${vencidos.map(s=>`
+            <div class="flex-between" style="padding:8px 0;border-bottom:1px solid var(--border)">
+              <span style="font-size:13px">${s.nombre}</span>
+              <span class="badge badge-venc-exp">Vencido ${s.vencimiento}</span>
+            </div>`).join('')}
+          ${proxVenc.map(s=>{
+            const dias = Math.round((new Date(s.vencimiento).getTime()-hoyMs)/86400000);
+            return `<div class="flex-between" style="padding:8px 0;border-bottom:1px solid var(--border)">
+              <span style="font-size:13px">${s.nombre}</span>
+              <span class="badge badge-venc-warn">Vence en ${dias}d</span>
+            </div>`;
+          }).join('')}
+        </div>` : ''}
+      </div>
+    </div>`;
+}
+
+// ── BACKUP & IMPORT ───────────────────────────────────────────────────────
+function exportarBackup() {
+  const fecha = new Date().toISOString().slice(0,10);
+  const payload = {
+    version: '1.6',
+    fecha,
+    app: 'LaboratorioNatural',
+    recetas:    db.recetas,
+    stock:      db.stock,
+    produccion: db.produccion || [],
+    ventas:     db.ventas || []
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `laboratorio_natural_backup_${fecha}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Backup exportado correctamente ✓');
+}
+
+function importarBackup() {
+  document.getElementById('import-file-input').value = '';
+  document.getElementById('import-file-input').click();
+}
+
+function procesarArchivoImport(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.recetas || !data.stock) throw new Error('Formato inválido');
+      const totalRecetas = data.recetas.length;
+      const totalStock   = data.stock.length;
+      showModal(`
+        <div class="modal-title">Importar backup</div>
+        <p style="font-size:13px;color:var(--text-mid);margin-bottom:16px">
+          Se encontró un backup del <strong>${data.fecha || 'fecha desconocida'}</strong> con:
+        </p>
+        <div class="grid2" style="margin-bottom:20px">
+          <div class="stat-card" style="text-align:center">
+            <div class="stat-num">${totalRecetas}</div>
+            <div class="stat-lbl">Recetas</div>
+          </div>
+          <div class="stat-card" style="text-align:center">
+            <div class="stat-num">${totalStock}</div>
+            <div class="stat-lbl">Ingredientes en stock</div>
+          </div>
+        </div>
+        <div class="alert-banner" style="background:var(--red-pale);border-color:#e0b0b0;color:var(--red)">
+          ⚠ Esto va a <strong>reemplazar</strong> todos tus datos actuales. Esta acción no se puede deshacer.
+        </div>
+        <p style="font-size:12px;color:var(--text-light);margin-top:8px">
+          Tip: si querés conservar lo que tenés, hacé primero un export del estado actual.
+        </p>
+        <div class="modal-footer">
+          <button class="btn" onclick="closeModal()">Cancelar</button>
+          <button class="btn btn-danger" onclick="confirmarImport('${encodeURIComponent(JSON.stringify(data))}')">Reemplazar mis datos</button>
+        </div>
+      `);
+    } catch(err) {
+      showModal(`
+        <div class="modal-title">Error al importar</div>
+        <p style="font-size:13px;color:var(--text-mid);margin-bottom:20px">
+          El archivo no parece ser un backup válido de Laboratorio Natural.<br>
+          Asegurate de importar un archivo <code>.json</code> generado con el botón "Exportar backup".
+        </p>
+        <div class="modal-footer">
+          <button class="btn btn-primary" onclick="closeModal()">Entendido</button>
+        </div>
+      `);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function confirmarImport(encoded) {
+  try {
+    const data = JSON.parse(decodeURIComponent(encoded));
+    db.recetas    = data.recetas;
+    db.stock      = data.stock;
+    db.produccion = data.produccion || [];
+    db.ventas     = data.ventas || [];
+    saveDB();
+    closeModal();
+    showToast(`Backup importado: ${db.recetas.length} recetas, ${db.stock.length} ingredientes ✓`);
+    showView('recetas');
+  } catch(e) {
+    closeModal();
+    showToast('Error al importar el backup.');
+  }
+}
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2600);
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────────
+function showModal(html) {
+  document.getElementById('modal-root').innerHTML = `
+    <div class="modal-overlay" onclick="if(event.target===this)closeModal()">
+      <div class="modal">${html}</div>
+    </div>`;
+}
+function closeModal() { document.getElementById('modal-root').innerHTML = ''; }
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+document.getElementById('global-search-input').addEventListener('input', function() {
+  buscarGlobal(this.value);
+});
+document.getElementById('global-search-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') cerrarBuscadorGlobal();
+});
+renderRecetas();
+</script>
+</body>
+</html>
